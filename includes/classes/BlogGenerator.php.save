@@ -1,0 +1,451 @@
+<?php
+/**
+ * Clase BlogGenerator - Generación automatizada de artículos con IA
+ * Usa OpenRouter API con DeepSeek R1
+ */
+
+class BlogGenerator {
+    private $db;
+    private $apiKey;
+    private $model;
+    private $imageModel;
+
+    public function __construct() {
+        $this->db = Database::getInstance();
+        $this->apiKey = get_setting('openrouter_api_key');
+        $this->model = get_setting('deepseek_model', 'deepseek/deepseek-r1');
+        $this->imageModel = get_setting('image_generation_model', 'openai/gpt-5-image-mini');
+    }
+
+    /**
+     * Generar un nuevo artículo automáticamente
+     */
+    public function generateArticle() {
+        // 1. Analizar tendencias en Google Trends
+        $trends = $this->getGoogleTrends();
+
+        // 2. Obtener webapps publicadas para dar preferencia
+        $webapps = $this->getPublishedWebapps();
+
+        // 3. Generar el prompt para la IA
+        $prompt = $this->buildPrompt($trends, $webapps);
+
+        // 4. Llamar a la API de OpenRouter con DeepSeek R1
+        $aiResponse = $this->callOpenRouter($prompt);
+
+        if (!$aiResponse) {
+            throw new Exception('Error al generar contenido con IA');
+        }
+
+        // 5. Parsear la respuesta
+        $article = $this->parseAIResponse($aiResponse);
+
+
+        // 7. Guardar en la base de datos
+        $articleId = $this->saveArticle($article, $prompt, $trends);
+
+        return [
+            'success' => true,
+            'article_id' => $articleId,
+            'title' => $article['title'],
+            'featured_image_url' => $featuredImage ?? null
+        ];
+    }
+
+    /**
+     * Obtener tendencias de Google Trends para Latinoamérica
+     */
+    private function getGoogleTrends() {
+        // Para simplificar, usamos temas predefinidos
+        // En producción, podrías usar la API de Google Trends o un scraper
+        $baseTopics = [
+            'IA para pequeñas empresas',
+            'Inteligencia artificial en negocios',
+            'Automatización con IA',
+            'Chatbots para empresas',
+            'Machine Learning para PYMEs',
+            'Transformación digital',
+            'IA en ventas',
+            'IA en marketing',
+            'IA en recursos humanos',
+            'IA en atención al cliente',
+            'Análisis de datos con IA',
+            'Predicción de ventas con IA'
+        ];
+
+        // Sectores de PYMEs
+        $sectors = [
+            'comercio minorista',
+            'restaurantes',
+            'servicios profesionales',
+            'manufactura',
+            'salud y bienestar',
+            'educación',
+            'construcción',
+            'turismo',
+            'agricultura',
+            'transporte'
+        ];
+
+        // Seleccionar aleatoriamente
+        $topic = $baseTopics[array_rand($baseTopics)];
+        $sector = $sectors[array_rand($sectors)];
+
+        return [
+            'main_topic' => $topic,
+            'sector' => $sector,
+            'region' => 'Latinoamérica',
+            'search_volume' => 'alto',
+            'trend' => 'creciente'
+        ];
+    }
+
+    /**
+     * Obtener webapps publicadas
+     */
+    private function getPublishedWebapps() {
+        return $this->db->fetchAll("
+            SELECT id, title, short_description, category
+            FROM webapps
+            WHERE status = 'published'
+            ORDER BY is_featured DESC, created_at DESC
+            LIMIT 5
+        ");
+    }
+
+    /**
+     * Construir prompt para la IA
+     */
+    private function buildPrompt($trends, $webapps) {
+        $webappsText = '';
+        if (!empty($webapps)) {
+            $webappsText = "\n\nAplicaciones disponibles en Guarani App Store:\n";
+            foreach ($webapps as $webapp) {
+                $webappsText .= "- {$webapp['title']}: {$webapp['short_description']}\n";
+            }
+        }
+
+        return "Eres César Ruzafa, un experto reconocido en IA aplicada a PYMEs en Latinoamérica.
+Escribe un artículo de blog profesional, educativo y práctico sobre: {$trends['main_topic']} aplicado al sector {$trends['sector']}.
+
+IMPORTANTE:
+- NO menciones que este contenido fue generado por IA
+- Escribe en primera persona como César Ruzafa
+- Usa un tono profesional pero cercano
+- Incluye ejemplos prácticos y casos de uso reales
+- El artículo debe tener entre 1200-1800 palabras
+- Usa formato HTML para los párrafos y estructura
+- INCLUYE 1-2 frases breves en guaraní (idioma cooficial de Paraguay) de manera natural y contextual, con su traducción al español entre paréntesis. Ejemplo: 'Mba'éichapa reñembokatupyrýta ne negocio' (¿Cómo vas a mejorar tu negocio?)
+{$webappsText}
+
+El artículo debe incluir:
+1. Un título atractivo y SEO-friendly
+2. Una introducción que enganche al lector
+3. 3-4 secciones principales con subtítulos
+4. Ejemplos concretos y aplicables
+5. Una conclusión con llamado a la acción
+6. Un meta description de máximo 160 caracteres
+
+Formato de respuesta (JSON):
+{
+    \"title\": \"Título del artículo\",
+    \"excerpt\": \"Resumen breve del artículo (150-200 caracteres)\",
+    \"content\": \"Contenido completo en HTML\",
+    \"seo_title\": \"Título optimizado para SEO\",
+    \"seo_description\": \"Meta description para SEO\",
+    \"tags\": [\"tag1\", \"tag2\", \"tag3\"]
+}";
+    }
+
+    /**
+     * Llamar a OpenRouter API
+     */
+    private function callOpenRouter($prompt) {
+        if (empty($this->apiKey)) {
+            throw new Exception('API Key de OpenRouter no configurada');
+        }
+
+        $ch = curl_init(OPENROUTER_API_URL);
+
+        $data = [
+            'model' => $this->model,
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => $prompt
+                ]
+            ],
+            'temperature' => 0.7,
+            'max_tokens' => 4000
+        ];
+
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $this->apiKey,
+                'Content-Type: application/json',
+                'HTTP-Referer: ' . SITE_URL,
+                'X-Title: Guarani App Store Blog'
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        error_log("DEBUG: Response recibida, length: " . strlen($response));
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            log_error("OpenRouter API error: " . $error);
+            return false;
+        }
+
+        if ($httpCode !== 200) {
+            log_error("OpenRouter API returned status code: " . $httpCode . " Response: " . $response);
+            return false;
+        }
+
+        $result = json_decode($response, true);
+        error_log("DEBUG FULL RESPONSE: " . $response);
+
+        if (!isset($result['choices'][0]['message']['content'])) {
+            log_error("OpenRouter API unexpected response format: " . $response);
+            return false;
+        }
+
+        return $result['choices'][0]['message']['content'];
+    }
+
+    /**
+     * Parsear respuesta de la IA
+     */
+    private function parseAIResponse($response) {
+        // Intentar extraer JSON de la respuesta
+        $jsonMatch = [];
+        if (preg_match('/\{[\s\S]*\}/', $response, $jsonMatch)) {
+            $parsed = json_decode($jsonMatch[0], true);
+            if ($parsed) {
+                return $parsed;
+            }
+        }
+
+        // Si no hay JSON válido, generar estructura básica
+        return [
+            'title' => 'La IA está Transformando las PYMEs en Latinoamérica',
+            'excerpt' => 'Descubre cómo la inteligencia artificial puede revolucionar tu negocio',
+            'content' => $response,
+            'seo_title' => 'IA para PYMEs: Guía Completa 2025',
+            'seo_description' => 'Aprende cómo implementar IA en tu PYME. Casos prácticos, herramientas y estrategias para transformar tu negocio.',
+            'tags' => ['IA', 'PYMEs', 'Transformación Digital']
+        ];
+    }
+
+    /**
+     * Guardar artículo en la base de datos
+     */
+    private function saveArticle($article, $prompt, $trends) {
+        $slug = generate_slug($article['title']);
+
+        // Verificar si el slug ya existe
+        $existingSlug = $this->db->fetchOne("SELECT id FROM blog_articles WHERE slug = ?", [$slug]);
+        if ($existingSlug) {
+            $slug .= '-' . time();
+        }
+
+        // Determinar si hay una webapp relacionada
+        $relatedWebappId = null;
+        if (!empty($article['content'])) {
+            // Buscar menciones de webapps en el contenido
+            $webapps = $this->getPublishedWebapps();
+            foreach ($webapps as $webapp) {
+                if (stripos($article['content'], $webapp['title']) !== false) {
+                    $relatedWebappId = $webapp['id'];
+                    break;
+                }
+            }
+        }
+
+        return $this->db->insert('blog_articles', [
+            'title' => $article['title'],
+            'slug' => $slug,
+            'excerpt' => $article['excerpt'] ?? truncate_text(strip_tags($article['content']), 200),
+            'content' => $article['content'],
+            'author_name' => get_setting('blog_author_name', 'César Ruzafa'),
+            'category' => $trends['sector'] ?? 'Transformación Digital',
+            'tags' => json_encode($article['tags'] ?? ['IA', 'PYMEs']),
+            'related_webapp_id' => $relatedWebappId,
+            'status' => 'draft',
+            'seo_title' => $article['seo_title'] ?? $article['title'],
+            'seo_description' => $article['seo_description'] ?? $article['excerpt'],
+            'generation_prompt' => $prompt,
+            'google_trends_data' => json_encode($trends),
+            'is_auto_generated' => 1,
+            'featured_image_url' => $article['featured_image_url'] ?? null,
+            'published_at' => null
+        ]);
+    }
+
+    /**
+     * Enviar artículo a suscriptores
+     */
+    public function notifySubscribers($articleId) {
+        $article = $this->db->fetchOne("
+            SELECT * FROM blog_articles WHERE id = ?
+        ", [$articleId]);
+
+        if (!$article) {
+            return false;
+        }
+
+        $subscribers = $this->db->fetchAll("
+            SELECT email FROM blog_subscribers
+            WHERE status = 'active'
+        ");
+
+        $articleUrl = get_url('blog/article/' . $article['slug']);
+
+        foreach ($subscribers as $subscriber) {
+            // TODO: Implementar envío real de email
+            // send_email($subscriber['email'], ...);
+        }
+
+        return true;
+    }
+
+    /**
+     * Generar imagen con DALL-E para el artículo
+     */
+    public function generateArticleImagePublic($article) {
+        if (empty($this->apiKey)) {
+            log_error('API Key de OpenRouter no configurada para DALL-E');
+            error_log("DEBUG: API Key vacía en generateArticleImagePublic");
+            return null;
+        }
+
+        // Crear prompt para DALL-E basado en el título y contenido
+        $imagePrompt = $this->buildImagePrompt($article);
+
+        // Llamar a DALL-E a través de OpenRouter
+        $ch = curl_init('https://openrouter.ai/api/v1/images/generations');
+
+        $data = [
+            'model' => $this->imageModel,
+            'prompt' => $imagePrompt,
+            'n' => 1,
+            'size' => '1792x1024'
+        ];
+
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $this->apiKey,
+                'Content-Type: application/json',
+                'HTTP-Referer: ' . SITE_URL,
+                'X-Title: Guarani App Store Blog'
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        error_log("DEBUG: Response recibida, length: " . strlen($response));
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            log_error("DALL-E API error: " . $error);
+            error_log("DEBUG: cURL error: " . $error);
+            return null;
+        }
+
+        if ($httpCode !== 200) {
+            log_error("DALL-E API returned status code: " . $httpCode . " Response: " . $response);
+            error_log("DEBUG: HTTP Code: " . $httpCode);
+            return null;
+        }
+
+        $result = json_decode($response, true);
+        error_log("DEBUG FULL RESPONSE: " . $response);
+
+        // GPT-5 Image Mini devuelve la URL en choices[0].message.content
+        if (!isset($result['choices'][0]['message']['content'])) {
+            log_error("Image API unexpected response format: " . $response);
+            error_log("DEBUG: Response format inválido");
+            return null;
+        }
+
+        // Extraer URL de la respuesta
+        $imageUrl = trim($result['choices'][0]['message']['content']);
+        
+        // Verificar que sea una URL válida
+        if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+            log_error("Image API returned invalid URL: " . $imageUrl . " - Full response: " . substr($response, 0, 500));
+            error_log("DEBUG: URL inválida: " . $imageUrl);
+            return null;
+        }
+        
+        // Descargar y guardar la imagen localmente
+        return $this->saveImageLocally($imageUrl, $article['title']);
+    }
+
+    /**
+     * Construir prompt para DALL-E
+     */
+    private function buildImagePrompt($article) {
+        // Extraer conceptos clave del título
+        $title = $article['title'];
+
+        // Crear un prompt descriptivo y profesional
+        return "A professional, modern, editorial-style featured image for a Forbes-like business article titled '{$title}'.
+The image should be:
+- Clean and sophisticated with a corporate aesthetic
+- Feature abstract representations of technology, AI, or business concepts
+- Use a professional color palette (blues, grays, subtle gradients)
+- Include subtle geometric shapes or data visualization elements
+- Photorealistic quality with professional lighting
+- NO text, NO logos, NO people's faces
+- Horizontal composition suitable for a hero image
+Style: Modern business editorial photography, Forbes magazine quality";
+    }
+
+    /**
+     * Guardar imagen localmente desde URL
+     */
+    private function saveImageLocally($imageUrl, $articleTitle) {
+        try {
+            // Descargar la imagen
+            $imageData = file_get_contents($imageUrl);
+
+            if ($imageData === false) {
+                log_error("No se pudo descargar la imagen de DALL-E");
+                return null;
+            }
+
+            // Crear directorio si no existe
+            $uploadDir = PUBLIC_PATH . '/assets/images/blog';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            // Generar nombre de archivo único
+            $filename = generate_slug($articleTitle) . '-' . time() . '.png';
+            $filepath = $uploadDir . '/' . $filename;
+
+            // Guardar archivo
+            if (file_put_contents($filepath, $imageData) === false) {
+                log_error("No se pudo guardar la imagen localmente");
+                return null;
+            }
+
+            // Retornar URL relativa
+            return ASSETS_URL . '/images/blog/' . $filename;
+
+        } catch (Exception $e) {
+            log_error("Error al guardar imagen: " . $e->getMessage());
+            return null;
+        }
+    }
+}
