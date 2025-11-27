@@ -61,16 +61,22 @@ define('TWO_FA_ISSUER', 'Guarani App Store');
 define('TWO_FA_ENABLED_BY_DEFAULT', false);
 
 // ================================================
-// CONFIGURACIÓN DE EMAILS
+// CONFIGURACIÓN DE EMAILS - BREVO (SENDINBLUE)
 // ================================================
-define('SMTP_ENABLED', false);                    // Cambiar a true para activar
-define('SMTP_HOST', 'smtp.hostinger.com');        // Servidor SMTP
+define('EMAIL_ENABLED', false);                        // Cambiar a true para activar
+define('BREVO_API_KEY', '');                           // Tu API Key de Brevo
+define('EMAIL_FROM_EMAIL', 'noreply@guaraniappstore.com.py');
+define('EMAIL_FROM_NAME', 'Guarani App Store');
+
+// Legacy SMTP config (deprecado, usar Brevo)
+define('SMTP_ENABLED', false);
+define('SMTP_HOST', 'smtp.hostinger.com');
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', '');                       // Tu email
-define('SMTP_PASSWORD', '');                       // Contraseña email
-define('SMTP_ENCRYPTION', 'tls');                  // tls o ssl
-define('SMTP_FROM_EMAIL', 'noreply@guaraniappstore.com.py');
-define('SMTP_FROM_NAME', 'Guarani App Store');
+define('SMTP_USERNAME', '');
+define('SMTP_PASSWORD', '');
+define('SMTP_ENCRYPTION', 'tls');
+define('SMTP_FROM_EMAIL', EMAIL_FROM_EMAIL);
+define('SMTP_FROM_NAME', EMAIL_FROM_NAME);
 
 // ================================================
 // CONFIGURACIÓN DEL BLOG
@@ -159,6 +165,14 @@ $APP_ROUTES = [
     'api/webapp/view' => 'api_webapp_view',
     'api/webapp/click' => 'api_webapp_click',
     'api/blog/view' => 'api_blog_view',
+
+    // API de gestión de suscriptores
+    'api/subscribers/approve' => 'api_subscribers',
+    'api/subscribers/bulk-approve' => 'api_subscribers',
+    'api/subscribers/delete' => 'api_subscribers',
+    'api/subscribers/resend-verification' => 'api_subscribers',
+    'api/subscribers/reactivate' => 'api_subscribers',
+    'api/subscribers/export' => 'api_subscribers',
 ];
 
 // ================================================
