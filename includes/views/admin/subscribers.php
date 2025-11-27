@@ -250,40 +250,46 @@ include __DIR__ . '/layout/header.php';
                                     </small>
                                 </td>
                                 <td class="text-center">
-                                    <div class="btn-group btn-group-sm" role="group">
+                                    <div class="d-flex gap-2 justify-content-center flex-wrap">
                                         <?php if ($subscriber['status'] === 'pending'): ?>
                                             <button
-                                                class="btn btn-outline-success"
+                                                class="btn btn-success btn-sm"
                                                 onclick="approveSubscriber(<?= $subscriber['id'] ?>)"
-                                                title="Aprobar"
+                                                style="min-width: 90px;"
                                             >
-                                                <i class="fas fa-check"></i>
+                                                <i class="fas fa-check"></i> Aprobar
                                             </button>
                                             <button
-                                                class="btn btn-outline-info"
+                                                class="btn btn-info btn-sm text-white"
                                                 onclick="resendVerification(<?= $subscriber['id'] ?>)"
-                                                title="Reenviar verificación"
+                                                style="min-width: 110px;"
                                             >
-                                                <i class="fas fa-envelope"></i>
+                                                <i class="fas fa-envelope"></i> Reenviar
                                             </button>
+                                        <?php endif; ?>
+
+                                        <?php if ($subscriber['status'] === 'active'): ?>
+                                            <span class="badge bg-success" style="padding: 8px 12px;">
+                                                <i class="fas fa-check-circle"></i> Verificado
+                                            </span>
                                         <?php endif; ?>
 
                                         <?php if ($subscriber['status'] === 'unsubscribed'): ?>
                                             <button
-                                                class="btn btn-outline-primary"
+                                                class="btn btn-primary btn-sm"
                                                 onclick="reactivateSubscriber(<?= $subscriber['id'] ?>)"
-                                                title="Reactivar"
+                                                style="min-width: 100px;"
                                             >
-                                                <i class="fas fa-redo"></i>
+                                                <i class="fas fa-redo"></i> Reactivar
                                             </button>
                                         <?php endif; ?>
 
                                         <button
-                                            class="btn btn-outline-danger"
+                                            class="btn btn-danger btn-sm"
                                             onclick="deleteSubscriber(<?= $subscriber['id'] ?>, '<?= htmlspecialchars($subscriber['email']) ?>')"
-                                            title="Eliminar"
+                                            style="min-width: 85px;"
                                         >
-                                            <i class="fas fa-trash"></i>
+                                            <i class="fas fa-trash"></i> Eliminar
                                         </button>
                                     </div>
                                 </td>
@@ -359,22 +365,35 @@ async function approveSubscriber(id) {
     if (!confirm('¿Aprobar este suscriptor manualmente?')) return;
 
     try {
+        console.log('Aprobando suscriptor ID:', id);
         const response = await fetch('/api/subscribers/approve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id })
         });
 
-        const data = await response.json();
+        console.log('Response status:', response.status);
+        const text = await response.text();
+        console.log('Response text:', text);
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('Error parsing JSON:', e);
+            showAlert('Error: La respuesta del servidor no es válida. Revisa la consola.', 'danger');
+            return;
+        }
 
         if (data.success) {
             showAlert(data.message, 'success');
             setTimeout(() => location.reload(), 1500);
         } else {
-            showAlert(data.message, 'danger');
+            showAlert('Error: ' + data.message, 'danger');
         }
     } catch (error) {
-        showAlert('Error al aprobar suscriptor', 'danger');
+        console.error('Error en approveSubscriber:', error);
+        showAlert('Error al aprobar suscriptor: ' + error.message, 'danger');
     }
 }
 
@@ -405,21 +424,34 @@ async function deleteSubscriber(id, email) {
 // Reenviar email de verificación
 async function resendVerification(id) {
     try {
+        console.log('Reenviando verificación para ID:', id);
         const response = await fetch('/api/subscribers/resend-verification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id })
         });
 
-        const data = await response.json();
+        console.log('Response status:', response.status);
+        const text = await response.text();
+        console.log('Response text:', text);
+
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('Error parsing JSON:', e);
+            showAlert('Error: La respuesta del servidor no es válida. Revisa la consola.', 'danger');
+            return;
+        }
 
         if (data.success) {
             showAlert(data.message, 'success');
         } else {
-            showAlert(data.message, 'danger');
+            showAlert('Error: ' + data.message, 'danger');
         }
     } catch (error) {
-        showAlert('Error al reenviar verificación', 'danger');
+        console.error('Error en resendVerification:', error);
+        showAlert('Error al reenviar verificación: ' + error.message, 'danger');
     }
 }
 

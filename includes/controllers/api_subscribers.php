@@ -11,19 +11,10 @@
  * - GET  /api/subscribers/export - Exportar suscriptores a CSV
  */
 
-require_once __DIR__ . '/../classes/Database.php';
-require_once __DIR__ . '/../classes/BrevoMailer.php';
+// Verificar autenticación de admin
+require_admin_auth();
 
-// Verificar que el usuario esté autenticado como admin
-session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Acceso denegado']);
-    exit;
-}
-
-// Conectar a la base de datos
-$db = new Database();
+$db = Database::getInstance();
 
 // Obtener la acción del path
 $path = $_SERVER['PATH_INFO'] ?? $_SERVER['REQUEST_URI'] ?? '';
@@ -84,8 +75,13 @@ if ($action === 'approve' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($updated) {
         // Enviar email de bienvenida
         if (EMAIL_ENABLED && BREVO_API_KEY) {
+            require_once INCLUDES_PATH . '/classes/BrevoMailer.php';
             $mailer = new BrevoMailer(BREVO_API_KEY, EMAIL_FROM_EMAIL, EMAIL_FROM_NAME);
-            $mailer->sendWelcomeEmail($subscriber['email'], $subscriber['name']);
+            $result = $mailer->sendWelcomeEmail($subscriber['email'], $subscriber['name']);
+
+            if (!$result['success']) {
+                error_log("Failed to send welcome email to {$subscriber['email']}: {$result['message']}");
+            }
         }
 
         jsonResponse(true, 'Suscriptor aprobado exitosamente');
@@ -132,9 +128,14 @@ if ($action === 'bulk-approve' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $ids
         );
 
+        require_once INCLUDES_PATH . '/classes/BrevoMailer.php';
         $mailer = new BrevoMailer(BREVO_API_KEY, EMAIL_FROM_EMAIL, EMAIL_FROM_NAME);
+
         foreach ($subscribers as $sub) {
-            $mailer->sendWelcomeEmail($sub['email'], $sub['name']);
+            $result = $mailer->sendWelcomeEmail($sub['email'], $sub['name']);
+            if (!$result['success']) {
+                error_log("Failed to send welcome email to {$sub['email']}: {$result['message']}");
+            }
         }
     }
 
@@ -200,21 +201,23 @@ if ($action === 'resend-verification' && $_SERVER['REQUEST_METHOD'] === 'POST') 
     }
 
     // Enviar email
-    if (EMAIL_ENABLED && BREVO_API_KEY) {
-        $mailer = new BrevoMailer(BREVO_API_KEY, EMAIL_FROM_EMAIL, EMAIL_FROM_NAME);
-        $result = $mailer->sendVerificationEmail(
-            $subscriber['email'],
-            $subscriber['name'],
-            $subscriber['verification_token']
-        );
-
-        if ($result['success']) {
-            jsonResponse(true, 'Email de verificación enviado exitosamente');
-        } else {
-            jsonResponse(false, 'Error al enviar email: ' . $result['message']);
-        }
-    } else {
+    if (!EMAIL_ENABLED || !BREVO_API_KEY) {
         jsonResponse(false, 'El envío de emails no está habilitado. Configure BREVO_API_KEY en config.php');
+    }
+
+    require_once INCLUDES_PATH . '/classes/BrevoMailer.php';
+    $mailer = new BrevoMailer(BREVO_API_KEY, EMAIL_FROM_EMAIL, EMAIL_FROM_NAME);
+    $result = $mailer->sendVerificationEmail(
+        $subscriber['email'],
+        $subscriber['name'],
+        $subscriber['verification_token']
+    );
+
+    if ($result['success']) {
+        jsonResponse(true, 'Email de verificación enviado exitosamente');
+    } else {
+        error_log("Brevo API Error: " . json_encode($result));
+        jsonResponse(false, 'Error al enviar email: ' . $result['message']);
     }
 }
 
@@ -338,4 +341,4 @@ if ($action === 'export' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 // Si llegamos aquí, la acción no es válida
-jsonResponse(false, 'Acción no válida');
+jsonResponse(false, 'Acción no válida: ' . $action);
