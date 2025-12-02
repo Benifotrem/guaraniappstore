@@ -90,6 +90,14 @@ if (!move_uploaded_file($file['tmp_name'], $filepath)) {
     json_response(['error' => 'Error al guardar el archivo'], 500);
 }
 
+// Optimizar imagen automáticamente (redimensionar y comprimir)
+$original_size = filesize($filepath);
+$optimized = optimize_webapp_image($filepath, 1200, 800, 85);
+
+// Obtener tamaño optimizado
+$optimized_size = filesize($filepath);
+$size_reduction = $optimized ? round((($original_size - $optimized_size) / $original_size) * 100, 1) : 0;
+
 // Generar URL
 $url = ASSETS_URL . '/images/webapps/screenshots/' . $filename;
 
@@ -98,6 +106,9 @@ json_response([
     'success' => true,
     'url' => $url,
     'filename' => $filename,
-    'size' => $file['size'],
-    'type' => $image_info['mime']
+    'original_size' => $original_size,
+    'optimized_size' => $optimized_size,
+    'size_reduction_percent' => $size_reduction,
+    'type' => $image_info['mime'],
+    'optimized' => $optimized
 ], 200);

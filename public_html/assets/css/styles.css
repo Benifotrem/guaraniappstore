@@ -540,15 +540,20 @@ a:hover {
 .webapp-card-cover {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 0;
+    padding-bottom: 56.25%; /* Aspect ratio 16:9 */
     overflow: hidden;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .webapp-card-cover img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     transition: transform 0.3s ease;
 }
 
@@ -745,7 +750,7 @@ a:hover {
     }
 
     .webapp-card-cover {
-        height: 160px;
+        padding-bottom: 60%; /* Aspect ratio más cuadrado en móviles */
     }
 
     .webapp-card-body {
@@ -756,4 +761,22 @@ a:hover {
         width: 50px;
         height: 50px;
     }
+}
+
+/* Asegurar que las imágenes se carguen suavemente */
+.webapp-card-cover img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Skeleton loader mientras carga la imagen */
+.webapp-card-cover img[loading="lazy"] {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 25%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
 }

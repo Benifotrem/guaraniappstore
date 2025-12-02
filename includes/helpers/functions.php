@@ -474,6 +474,9 @@ function download_and_rehost_image($imageUrl, $subfolder = 'webapps', $maxRetrie
                 return null;
             }
 
+            // Optimizar imagen automáticamente
+            optimize_webapp_image($filepath, 1200, 800, 85);
+
             // Devolver URL local
             $localUrl = ASSETS_URL . '/images/' . $subfolder . '/' . $filename;
 
@@ -498,4 +501,114 @@ function download_and_rehost_image($imageUrl, $subfolder = 'webapps', $maxRetrie
     // Si llegamos aquí, todos los intentos fallaron
     log_error("Falló descarga de imagen después de $maxRetries intentos. Último error: $lastError - $imageUrl");
     return null;
+}
+
+/**
+ * Optimiza y redimensiona una imagen para las tarjetas de webapp
+ *
+ * @param string $imagePath Ruta del archivo de imagen
+ * @param int $maxWidth Ancho máximo
+ * @param int $maxHeight Alto máximo
+ * @param int $quality Calidad de compresión (1-100)
+ * @return bool True si se optimizó correctamente
+ */
+function optimize_webapp_image($imagePath, $maxWidth = 1200, $maxHeight = 800, $quality = 85) {
+    if (!file_exists($imagePath)) {
+        return false;
+    }
+
+    // Obtener información de la imagen
+    $imageInfo = @getimagesize($imagePath);
+    if ($imageInfo === false) {
+        return false;
+    }
+
+    list($width, $height, $type) = $imageInfo;
+
+    // Si la imagen ya es más pequeña que el máximo, solo optimizar calidad
+    if ($width <= $maxWidth && $height <= $maxHeight) {
+        // Solo recomprimir si es JPEG o PNG grande
+        $fileSize = filesize($imagePath);
+        if ($fileSize < 500000) { // Menos de 500KB
+            return true; // Ya está optimizada
+        }
+    }
+
+    // Calcular nuevas dimensiones manteniendo aspect ratio
+    $ratio = min($maxWidth / $width, $maxHeight / $height);
+    if ($ratio >= 1) {
+        $ratio = 1; // No agrandar imágenes pequeñas
+    }
+
+    $newWidth = round($width * $ratio);
+    $newHeight = round($height * $ratio);
+
+    // Crear imagen desde el archivo original
+    $source = null;
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            $source = @imagecreatefromjpeg($imagePath);
+            break;
+        case IMAGETYPE_PNG:
+            $source = @imagecreatefrompng($imagePath);
+            break;
+        case IMAGETYPE_GIF:
+            $source = @imagecreatefromgif($imagePath);
+            break;
+        case IMAGETYPE_WEBP:
+            if (function_exists('imagecreatefromwebp')) {
+                $source = @imagecreatefromwebp($imagePath);
+            }
+            break;
+    }
+
+    if ($source === null || $source === false) {
+        return false;
+    }
+
+    // Crear imagen redimensionada
+    $destination = imagecreatetruecolor($newWidth, $newHeight);
+
+    // Preservar transparencia para PNG y GIF
+    if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_GIF) {
+        imagealphablending($destination, false);
+        imagesavealpha($destination, true);
+        $transparent = imagecolorallocatealpha($destination, 255, 255, 255, 127);
+        imagefilledrectangle($destination, 0, 0, $newWidth, $newHeight, $transparent);
+    }
+
+    // Redimensionar con alta calidad
+    imagecopyresampled(
+        $destination, $source,
+        0, 0, 0, 0,
+        $newWidth, $newHeight,
+        $width, $height
+    );
+
+    // Guardar imagen optimizada
+    $success = false;
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            $success = imagejpeg($destination, $imagePath, $quality);
+            break;
+        case IMAGETYPE_PNG:
+            // PNG quality is 0-9, convertir de 0-100
+            $pngQuality = round((100 - $quality) / 11.111);
+            $success = imagepng($destination, $imagePath, $pngQuality);
+            break;
+        case IMAGETYPE_GIF:
+            $success = imagegif($destination, $imagePath);
+            break;
+        case IMAGETYPE_WEBP:
+            if (function_exists('imagewebp')) {
+                $success = imagewebp($destination, $imagePath, $quality);
+            }
+            break;
+    }
+
+    // Liberar memoria
+    imagedestroy($source);
+    imagedestroy($destination);
+
+    return $success;
 }
