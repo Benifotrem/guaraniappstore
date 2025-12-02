@@ -153,7 +153,10 @@ document.getElementById('generate-btn').addEventListener('click', function() {
         const step = steps[currentStep];
 
         // Actualizar texto
-        document.getElementById('progress-text').textContent = step.text;
+        const progressText = document.getElementById('progress-text');
+        if (progressText) {
+            progressText.textContent = step.text;
+        }
 
         // Marcar paso como activo
         const stepElements = document.querySelectorAll('.progress-step');
@@ -170,7 +173,10 @@ document.getElementById('generate-btn').addEventListener('click', function() {
         // Actualizar barra de progreso
         elapsedDuration += (currentStep > 0 ? steps[currentStep - 1].duration : 0);
         const progressPercent = (elapsedDuration / totalDuration) * 100;
-        document.getElementById('progress-bar').style.width = progressPercent + '%';
+        const progressBar = document.getElementById('progress-bar');
+        if (progressBar) {
+            progressBar.style.width = progressPercent + '%';
+        }
 
         currentStep++;
 
@@ -195,8 +201,15 @@ document.getElementById('generate-btn').addEventListener('click', function() {
     .then(data => {
         if (data.success) {
             // Completar barra de progreso
-            document.getElementById('progress-bar').style.width = '100%';
-            document.getElementById('progress-text').textContent = '¡Artículo generado exitosamente!';
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            if (progressBar) {
+                progressBar.style.width = '100%';
+            }
+            if (progressText) {
+                progressText.textContent = '¡Artículo generado exitosamente!';
+            }
 
             // Marcar todos los pasos como completados
             document.querySelectorAll('.progress-step').forEach(el => {
@@ -210,19 +223,39 @@ document.getElementById('generate-btn').addEventListener('click', function() {
             }, 1000);
         } else {
             // Mostrar error
-            document.getElementById('error-message').textContent = 'Error: ' + (data.error || 'Error desconocido');
-            document.getElementById('error-message').style.display = 'block';
-            document.getElementById('progress-container').style.display = 'none';
-            document.getElementById('generate-button-container').style.display = 'block';
+            const errorMsg = document.getElementById('error-message');
+            const progressContainer = document.getElementById('progress-container');
+            const buttonContainer = document.getElementById('generate-button-container');
+
+            if (errorMsg) {
+                errorMsg.textContent = 'Error: ' + (data.error || 'Error desconocido');
+                errorMsg.style.display = 'block';
+            }
+            if (progressContainer) {
+                progressContainer.style.display = 'none';
+            }
+            if (buttonContainer) {
+                buttonContainer.style.display = 'block';
+            }
             btn.disabled = false;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        document.getElementById('error-message').textContent = 'Error de conexión: ' + error.message;
-        document.getElementById('error-message').style.display = 'block';
-        document.getElementById('progress-container').style.display = 'none';
-        document.getElementById('generate-button-container').style.display = 'block';
+        const errorMsg = document.getElementById('error-message');
+        const progressContainer = document.getElementById('progress-container');
+        const buttonContainer = document.getElementById('generate-button-container');
+
+        if (errorMsg) {
+            errorMsg.textContent = 'Error de conexión: ' + error.message;
+            errorMsg.style.display = 'block';
+        }
+        if (progressContainer) {
+            progressContainer.style.display = 'none';
+        }
+        if (buttonContainer) {
+            buttonContainer.style.display = 'block';
+        }
         btn.disabled = false;
     });
 });
