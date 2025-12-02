@@ -91,4 +91,6 @@ $page_title = 'Gestión de Suscriptores';
 // ==================================================
 // RENDERIZAR VISTA
 // ==================================================
+include INCLUDES_PATH . '/views/admin/layout/header.php';
 include INCLUDES_PATH . '/views/admin/subscribers.php';
+include INCLUDES_PATH . '/views/admin/layout/footer.php';
