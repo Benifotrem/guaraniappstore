@@ -113,6 +113,7 @@ a:hover {
     max-width: 1280px;
     margin: 0 auto;
     padding: 0 1rem;
+    overflow-x: hidden;
 }
 
 .container-fluid {
@@ -311,12 +312,14 @@ a:hover {
 .grid {
     display: grid;
     gap: 2rem;
+    width: 100%;
+    max-width: 100%;
 }
 
-.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 /* ================================================
    ANIMACIONES
@@ -530,6 +533,8 @@ a:hover {
     display: flex;
     flex-direction: column;
     height: 100%;
+    max-width: 100%;
+    width: 100%;
 }
 
 .webapp-card:hover {
@@ -540,10 +545,12 @@ a:hover {
 .webapp-card-cover {
     position: relative;
     width: 100%;
+    max-width: 100%;
     height: 0;
     padding-bottom: 56.25%; /* Aspect ratio 16:9 */
     overflow: hidden;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    flex-shrink: 0;
 }
 
 .webapp-card-cover img {
@@ -551,10 +558,13 @@ a:hover {
     top: 0;
     left: 0;
     width: 100%;
+    max-width: 100%;
     height: 100%;
+    max-height: 100%;
     object-fit: cover;
     object-position: center;
     transition: transform 0.3s ease;
+    display: block;
 }
 
 .webapp-card:hover .webapp-card-cover img {
