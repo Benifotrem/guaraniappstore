@@ -105,6 +105,22 @@
                        placeholder="https://...">
             </div>
 
+            <!-- Screenshots -->
+            <div class="form-group admin-form-grid-full">
+                <label for="screenshots" class="form-label">Screenshots (Capturas de Pantalla)</label>
+                <textarea id="screenshots"
+                          name="screenshots"
+                          class="form-textarea"
+                          rows="4"
+                          placeholder="Una URL por línea:&#10;https://ejemplo.com/screenshot1.jpg&#10;https://ejemplo.com/screenshot2.jpg&#10;https://ejemplo.com/screenshot3.jpg"><?php
+                    $screenshots = json_decode($form_data['screenshots'] ?? '[]', true);
+                    if (is_array($screenshots) && !empty($screenshots)) {
+                        echo e(implode("\n", $screenshots));
+                    }
+                ?></textarea>
+                <small class="form-help">Una URL por línea. Se descargarán y almacenarán localmente. Se mostrará la primera en las tarjetas.</small>
+            </div>
+
             <!-- Tags -->
             <div class="form-group">
                 <label for="tags" class="form-label">Tags</label>

@@ -59,8 +59,22 @@
                     <div class="webapp-card">
                         <!-- Cover Image with Featured Badge -->
                         <div class="webapp-card-cover">
-                            <?php if ($webapp['cover_image_url']): ?>
-                                <img src="<?php echo e($webapp['cover_image_url']); ?>"
+                            <?php
+                            // Prioridad: screenshots[0] > cover_image_url > placeholder
+                            $screenshots = json_decode($webapp['screenshots'] ?? '[]', true);
+                            $display_image = null;
+
+                            if (is_array($screenshots) && !empty($screenshots)) {
+                                // Usar el primer screenshot si existe
+                                $display_image = $screenshots[0];
+                            } elseif (!empty($webapp['cover_image_url'])) {
+                                // Fallback a cover_image_url
+                                $display_image = $webapp['cover_image_url'];
+                            }
+
+                            if ($display_image):
+                            ?>
+                                <img src="<?php echo e($display_image); ?>"
                                      alt="<?php echo e($webapp['title']); ?>"
                                      loading="lazy"
                                      onerror="this.src='<?php echo ASSETS_URL; ?>/images/placeholder-webapp.jpg'">

@@ -68,6 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $form_data['cover_image_url'] = '';
         }
 
+        // Procesar screenshots (múltiples URLs, una por línea)
+        $screenshots_input = trim($_POST['screenshots'] ?? '');
+        $screenshots_array = [];
+        if (!empty($screenshots_input)) {
+            $screenshot_urls = array_filter(array_map('trim', explode("\n", $screenshots_input)));
+            foreach ($screenshot_urls as $screenshot_url) {
+                // Descargar y re-hostear cada screenshot
+                $rehosted_screenshot = download_and_rehost_image($screenshot_url, 'webapps/screenshots');
+                if ($rehosted_screenshot) {
+                    $screenshots_array[] = $rehosted_screenshot;
+                }
+            }
+        }
+        $form_data['screenshots'] = json_encode($screenshots_array);
+
         if (empty($errors)) {
             if ($form_data['status'] === 'published' && empty($form_data['published_at'])) {
                 $form_data['published_at'] = date('Y-m-d H:i:s');

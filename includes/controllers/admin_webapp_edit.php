@@ -78,6 +78,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $form_data['cover_image_url'] = $cover_url;
         }
 
+        // Procesar screenshots (múltiples URLs, una por línea)
+        $screenshots_input = trim($_POST['screenshots'] ?? '');
+        $screenshots_array = [];
+        if (!empty($screenshots_input)) {
+            $screenshot_urls = array_filter(array_map('trim', explode("\n", $screenshots_input)));
+
+            // Comparar con screenshots actuales para solo descargar los nuevos
+            $existing_screenshots = json_decode($webapp['screenshots'] ?? '[]', true);
+            $existing_screenshots = is_array($existing_screenshots) ? $existing_screenshots : [];
+
+            foreach ($screenshot_urls as $screenshot_url) {
+                // Si ya está en la lista de existentes y es una URL local, mantenerla
+                if (in_array($screenshot_url, $existing_screenshots) &&
+                    (strpos($screenshot_url, SITE_URL) === 0 || strpos($screenshot_url, ASSETS_URL) === 0)) {
+                    $screenshots_array[] = $screenshot_url;
+                } else {
+                    // Descargar y re-hostear screenshot nueva o externa
+                    $rehosted_screenshot = download_and_rehost_image($screenshot_url, 'webapps/screenshots');
+                    if ($rehosted_screenshot) {
+                        $screenshots_array[] = $rehosted_screenshot;
+                    }
+                }
+            }
+        }
+        $form_data['screenshots'] = json_encode($screenshots_array);
+
         if (empty($errors)) {
             if ($form_data['status'] === 'published' && empty($webapp['published_at'])) {
                 $form_data['published_at'] = date('Y-m-d H:i:s');
