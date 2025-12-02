@@ -291,9 +291,12 @@ Formato de respuesta (JSON):
         try {
             $keywords = $this->extractKeywords($article['title']);
             $query = urlencode($keywords);
-            
+
+            // Solicitar 15 fotos de una página aleatoria (1-5) para mayor variedad
+            $randomPage = rand(1, 5);
+
             // Pexels API endpoint
-            $url = "https://api.pexels.com/v1/search?query={$query}&per_page=1&orientation=landscape";
+            $url = "https://api.pexels.com/v1/search?query={$query}&per_page=15&page={$randomPage}&orientation=landscape";
 
             $ch = curl_init($url);
             curl_setopt_array($ch, [
@@ -317,12 +320,14 @@ Formato de respuesta (JSON):
 
             $result = json_decode($response, true);
 
-            if (!isset($result['photos'][0]['src']['large2x'])) {
+            if (empty($result['photos'])) {
                 log_error("Pexels: No se encontraron fotos para: $keywords");
                 return null;
             }
 
-            $imageUrl = $result['photos'][0]['src']['large2x'];
+            // Seleccionar una foto ALEATORIA de los resultados
+            $randomIndex = rand(0, count($result['photos']) - 1);
+            $imageUrl = $result['photos'][$randomIndex]['src']['large2x'];
 
             // Descargar imagen
             $ch = curl_init($imageUrl);
