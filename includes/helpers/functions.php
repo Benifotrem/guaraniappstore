@@ -332,12 +332,14 @@ function csrf_field() {
 /**
  * Descargar imagen de URL externa y re-hostearla localmente
  * Soluciona problemas de hotlinking bloqueado
+ * VERSIÓN MEJORADA: Con reintentos, múltiples user-agents y validación robusta
  *
  * @param string $imageUrl URL de la imagen externa
  * @param string $subfolder Subcarpeta donde guardar (ej: 'webapps', 'blog')
+ * @param int $maxRetries Número máximo de reintentos
  * @return string|null URL local de la imagen o null si falla
  */
-function download_and_rehost_image($imageUrl, $subfolder = 'webapps') {
+function download_and_rehost_image($imageUrl, $subfolder = 'webapps', $maxRetries = 3) {
     if (empty($imageUrl) || !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
         return null;
     }
@@ -347,65 +349,153 @@ function download_and_rehost_image($imageUrl, $subfolder = 'webapps') {
         return $imageUrl;
     }
 
-    try {
-        // Descargar imagen
-        $ch = curl_init($imageUrl);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            CURLOPT_REFERER => $imageUrl,  // Algunos servicios requieren referer
-        ]);
+    // Lista de User-Agents para rotar (algunos servicios bloquean por User-Agent)
+    $userAgents = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    ];
 
-        $imageData = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        curl_close($ch);
+    $attempt = 0;
+    $lastError = '';
 
-        if ($httpCode !== 200 || empty($imageData)) {
-            log_error("No se pudo descargar imagen: HTTP $httpCode - $imageUrl");
+    while ($attempt < $maxRetries) {
+        $attempt++;
+
+        try {
+            // Rotar User-Agent en cada intento
+            $userAgent = $userAgents[($attempt - 1) % count($userAgents)];
+
+            // Configuración más permisiva en intentos posteriores
+            $sslVerify = ($attempt === 1); // Solo verificar SSL en el primer intento
+
+            $ch = curl_init($imageUrl);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_CONNECTTIMEOUT => 15,
+                CURLOPT_SSL_VERIFYPEER => $sslVerify,
+                CURLOPT_SSL_VERIFYHOST => $sslVerify ? 2 : 0,
+                CURLOPT_USERAGENT => $userAgent,
+                CURLOPT_REFERER => $imageUrl,
+                CURLOPT_ENCODING => '', // Aceptar cualquier encoding
+                CURLOPT_MAXREDIRS => 5,
+            ]);
+
+            $imageData = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            // Validar respuesta HTTP
+            if ($httpCode !== 200) {
+                $lastError = "HTTP $httpCode";
+                if (!empty($curlError)) {
+                    $lastError .= " - $curlError";
+                }
+
+                if ($attempt < $maxRetries) {
+                    sleep(1); // Esperar 1 segundo antes de reintentar
+                    continue;
+                }
+                log_error("No se pudo descargar imagen después de $maxRetries intentos: $lastError - $imageUrl");
+                return null;
+            }
+
+            // Validar que haya datos
+            if (empty($imageData)) {
+                $lastError = "Datos vacíos";
+                if ($attempt < $maxRetries) {
+                    sleep(1);
+                    continue;
+                }
+                log_error("Imagen descargada está vacía: $imageUrl");
+                return null;
+            }
+
+            // Validación robusta: verificar que sea realmente una imagen usando getimagesizefromstring
+            $imageInfo = @getimagesizefromstring($imageData);
+            if ($imageInfo === false) {
+                $lastError = "Datos no son una imagen válida (getimagesizefromstring falló)";
+                if ($attempt < $maxRetries) {
+                    sleep(1);
+                    continue;
+                }
+                log_error("Datos descargados no son una imagen válida: $imageUrl");
+                return null;
+            }
+
+            // Determinar extensión desde los datos reales de la imagen
+            $mimeType = $imageInfo['mime'] ?? '';
+            $extension = 'jpg'; // Por defecto
+
+            switch ($mimeType) {
+                case 'image/jpeg':
+                    $extension = 'jpg';
+                    break;
+                case 'image/png':
+                    $extension = 'png';
+                    break;
+                case 'image/gif':
+                    $extension = 'gif';
+                    break;
+                case 'image/webp':
+                    $extension = 'webp';
+                    break;
+                default:
+                    // Intentar desde Content-Type como fallback
+                    if (preg_match('/image\/(jpeg|jpg|png|gif|webp)/i', $contentType, $matches)) {
+                        $extension = strtolower($matches[1]);
+                        if ($extension === 'jpeg') $extension = 'jpg';
+                    }
+            }
+
+            // Crear directorio si no existe
+            $uploadDir = PUBLIC_PATH . '/assets/images/' . $subfolder;
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            // Generar nombre único
+            $filename = uniqid('img_', true) . '.' . $extension;
+            $filepath = $uploadDir . '/' . $filename;
+
+            // Guardar imagen
+            if (file_put_contents($filepath, $imageData) === false) {
+                $lastError = "No se pudo escribir archivo en disco";
+                if ($attempt < $maxRetries) {
+                    sleep(1);
+                    continue;
+                }
+                log_error("No se pudo guardar imagen localmente: $filepath");
+                return null;
+            }
+
+            // Devolver URL local
+            $localUrl = ASSETS_URL . '/images/' . $subfolder . '/' . $filename;
+
+            // Log de éxito (solo si hubo más de un intento)
+            if ($attempt > 1) {
+                log_error("Imagen re-hosteada exitosamente en intento $attempt: $imageUrl -> $localUrl");
+            }
+
+            return $localUrl;
+
+        } catch (Exception $e) {
+            $lastError = $e->getMessage();
+            if ($attempt < $maxRetries) {
+                sleep(1);
+                continue;
+            }
+            log_error("Error descargando imagen después de $maxRetries intentos: " . $e->getMessage() . " - $imageUrl");
             return null;
         }
-
-        // Validar que sea una imagen
-        if (!preg_match('/^image\//i', $contentType)) {
-            log_error("URL no es una imagen válida: $contentType - $imageUrl");
-            return null;
-        }
-
-        // Determinar extensión
-        $extension = 'jpg';  // Por defecto
-        if (preg_match('/image\/(jpeg|jpg|png|gif|webp)/i', $contentType, $matches)) {
-            $extension = strtolower($matches[1]);
-            if ($extension === 'jpeg') $extension = 'jpg';
-        }
-
-        // Crear directorio si no existe
-        $uploadDir = PUBLIC_PATH . '/assets/images/' . $subfolder;
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
-        // Generar nombre único
-        $filename = uniqid('img_', true) . '.' . $extension;
-        $filepath = $uploadDir . '/' . $filename;
-
-        // Guardar imagen
-        if (file_put_contents($filepath, $imageData) === false) {
-            log_error("No se pudo guardar imagen localmente: $filepath");
-            return null;
-        }
-
-        // Devolver URL local
-        $localUrl = ASSETS_URL . '/images/' . $subfolder . '/' . $filename;
-        log_info("Imagen re-hosteada exitosamente: $imageUrl -> $localUrl");
-
-        return $localUrl;
-
-    } catch (Exception $e) {
-        log_error("Error descargando imagen: " . $e->getMessage());
-        return null;
     }
+
+    // Si llegamos aquí, todos los intentos fallaron
+    log_error("Falló descarga de imagen después de $maxRetries intentos. Último error: $lastError - $imageUrl");
+    return null;
 }
