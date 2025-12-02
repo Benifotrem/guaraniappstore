@@ -773,10 +773,12 @@ a:hover {
     }
 }
 
-/* Asegurar que las imágenes se carguen suavemente */
+/* CRÍTICO: Forzar que imágenes NUNCA excedan el contenedor */
 .webapp-card-cover img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
+    min-width: 0 !important;
+    min-height: 0 !important;
 }
 
 /* Skeleton loader mientras carga la imagen */
@@ -789,4 +791,15 @@ a:hover {
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
+}
+
+/* FORZAR límites en TODOS los elementos de la tarjeta */
+.webapp-card,
+.webapp-card * {
+    box-sizing: border-box !important;
+}
+
+.webapp-card img {
+    max-width: 100% !important;
+    height: auto !important;
 }
