@@ -63,14 +63,11 @@ if ($action === 'approve' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Actualizar a activo
-    $updated = $db->execute(
-        "UPDATE blog_subscribers
-         SET status = 'active',
-             verified_at = NOW(),
-             verification_token = NULL
-         WHERE id = ?",
-        [$id]
-    );
+    $updated = $db->update('blog_subscribers', [
+        'status' => 'active',
+        'verified_at' => date('Y-m-d H:i:s'),
+        'verification_token' => null
+    ], 'id = ?', [$id]);
 
     if ($updated) {
         // Enviar email de bienvenida
@@ -112,7 +109,7 @@ if ($action === 'bulk-approve' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
     // Actualizar todos
-    $updated = $db->execute(
+    $updated = $db->query(
         "UPDATE blog_subscribers
          SET status = 'active',
              verified_at = NOW(),
@@ -153,10 +150,7 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         jsonResponse(false, 'ID de suscriptor requerido');
     }
 
-    $deleted = $db->execute(
-        "DELETE FROM blog_subscribers WHERE id = ?",
-        [$id]
-    );
+    $deleted = $db->delete('blog_subscribers', 'id = ?', [$id]);
 
     if ($deleted) {
         jsonResponse(true, 'Suscriptor eliminado exitosamente');
@@ -193,10 +187,9 @@ if ($action === 'resend-verification' && $_SERVER['REQUEST_METHOD'] === 'POST') 
     // Generar nuevo token si no existe
     if (!$subscriber['verification_token']) {
         $token = bin2hex(random_bytes(32));
-        $db->execute(
-            "UPDATE blog_subscribers SET verification_token = ? WHERE id = ?",
-            [$token, $id]
-        );
+        $db->update('blog_subscribers', [
+            'verification_token' => $token
+        ], 'id = ?', [$id]);
         $subscriber['verification_token'] = $token;
     }
 
@@ -245,14 +238,11 @@ if ($action === 'reactivate' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         jsonResponse(false, 'El suscriptor no está desuscrito');
     }
 
-    $updated = $db->execute(
-        "UPDATE blog_subscribers
-         SET status = 'active',
-             unsubscribed_at = NULL,
-             verified_at = NOW()
-         WHERE id = ?",
-        [$id]
-    );
+    $updated = $db->update('blog_subscribers', [
+        'status' => 'active',
+        'unsubscribed_at' => null,
+        'verified_at' => date('Y-m-d H:i:s')
+    ], 'id = ?', [$id]);
 
     if ($updated) {
         jsonResponse(true, 'Suscriptor reactivado exitosamente');

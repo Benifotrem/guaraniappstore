@@ -1,336 +1,294 @@
 <?php
 /**
  * Vista del panel de administración de suscriptores
- *
- * Variables disponibles:
- * - $stats: estadísticas de suscriptores
- * - $subscribers: lista de suscriptores
- * - $currentPage: página actual
- * - $totalPages: total de páginas
- * - $searchQuery: término de búsqueda
- * - $statusFilter: filtro de estado
  */
-include __DIR__ . '/layout/header.php';
 ?>
 
-<!-- Título y Acciones Globales -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Alertas -->
+<div id="alertContainer"></div>
+
+<!-- Título y Acciones -->
+<div class="flex justify-between items-center mb-4">
     <div>
-        <h1 class="h3 mb-2">Gestión de Suscriptores</h1>
-        <p class="text-muted mb-0">
-            Administra los suscriptores del blog y envía notificaciones
-        </p>
+        <h2 class="mb-1">Gestión de Suscriptores</h2>
+        <p class="text-muted">Administra los suscriptores del blog y envía notificaciones</p>
     </div>
-    <div class="btn-group">
-        <button type="button" class="btn btn-outline-primary" onclick="exportSubscribers()">
+    <div class="flex gap-2">
+        <button type="button" class="btn btn-secondary" onclick="exportSubscribers()">
             <i class="fas fa-download"></i> Exportar CSV
         </button>
-        <button type="button" class="btn btn-outline-secondary" onclick="refreshData()">
+        <button type="button" class="btn btn-secondary" onclick="refreshData()">
             <i class="fas fa-sync-alt"></i> Actualizar
         </button>
     </div>
 </div>
 
-<!-- Alertas -->
-<div id="alertContainer"></div>
-
-<!-- Tarjetas de Estadísticas -->
-<div class="row mb-4">
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-start">
-                        <h6 class="text-muted mb-1">Total</h6>
-                        <h3 class="mb-0"><?= number_format($stats['total']) ?></h3>
-                    </div>
-                    <div class="text-primary" style="font-size: 2rem;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
+<!-- Estadísticas -->
+<div class="dashboard-stats">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value"><?= format_number($stats['total']) ?></div>
+                <div class="stat-card-label">Total</div>
+            </div>
+            <div class="stat-card-icon primary">
+                <i class="fas fa-users"></i>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-start">
-                        <h6 class="text-muted mb-1">Activos</h6>
-                        <h3 class="mb-0 text-success"><?= number_format($stats['active']) ?></h3>
-                    </div>
-                    <div class="text-success" style="font-size: 2rem;">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value text-success"><?= format_number($stats['active']) ?></div>
+                <div class="stat-card-label">Activos</div>
+            </div>
+            <div class="stat-card-icon success">
+                <i class="fas fa-check-circle"></i>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-start">
-                        <h6 class="text-muted mb-1">Pendientes</h6>
-                        <h3 class="mb-0 text-warning"><?= number_format($stats['pending']) ?></h3>
-                    </div>
-                    <div class="text-warning" style="font-size: 2rem;">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value" style="color: var(--warning);"><?= format_number($stats['pending']) ?></div>
+                <div class="stat-card-label">Pendientes</div>
+            </div>
+            <div class="stat-card-icon warning">
+                <i class="fas fa-clock"></i>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3 col-sm-6 mb-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-start">
-                        <h6 class="text-muted mb-1">Desuscritos</h6>
-                        <h3 class="mb-0 text-secondary"><?= number_format($stats['unsubscribed']) ?></h3>
-                    </div>
-                    <div class="text-secondary" style="font-size: 2rem;">
-                        <i class="fas fa-user-slash"></i>
-                    </div>
-                </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value" style="opacity: 0.6;"><?= format_number($stats['unsubscribed']) ?></div>
+                <div class="stat-card-label">Desuscritos</div>
+            </div>
+            <div class="stat-card-icon" style="opacity: 0.6;">
+                <i class="fas fa-user-slash"></i>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Filtros y Búsqueda -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <form method="GET" action="/admin/subscribers" class="row g-3" id="filterForm">
-            <div class="col-md-4">
-                <label for="search" class="form-label">Buscar</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="search"
-                    name="search"
-                    placeholder="Email o nombre..."
-                    value="<?= htmlspecialchars($searchQuery ?? '') ?>"
-                >
-            </div>
+<div class="card mb-4">
+    <form method="GET" action="/admin/subscribers" class="grid grid-cols-5 gap-3">
+        <div>
+            <label class="form-label">Buscar</label>
+            <input
+                type="text"
+                class="form-control"
+                name="search"
+                placeholder="Email o nombre..."
+                value="<?= htmlspecialchars($searchQuery ?? '') ?>"
+            >
+        </div>
 
-            <div class="col-md-3">
-                <label for="status" class="form-label">Estado</label>
-                <select class="form-select" id="status" name="status">
-                    <option value="">Todos</option>
-                    <option value="active" <?= ($statusFilter ?? '') === 'active' ? 'selected' : '' ?>>Activos</option>
-                    <option value="pending" <?= ($statusFilter ?? '') === 'pending' ? 'selected' : '' ?>>Pendientes</option>
-                    <option value="unsubscribed" <?= ($statusFilter ?? '') === 'unsubscribed' ? 'selected' : '' ?>>Desuscritos</option>
-                </select>
-            </div>
+        <div>
+            <label class="form-label">Estado</label>
+            <select class="form-control" name="status">
+                <option value="">Todos</option>
+                <option value="active" <?= ($statusFilter ?? '') === 'active' ? 'selected' : '' ?>>Activos</option>
+                <option value="pending" <?= ($statusFilter ?? '') === 'pending' ? 'selected' : '' ?>>Pendientes</option>
+                <option value="unsubscribed" <?= ($statusFilter ?? '') === 'unsubscribed' ? 'selected' : '' ?>>Desuscritos</option>
+            </select>
+        </div>
 
-            <div class="col-md-2">
-                <label for="limit" class="form-label">Mostrar</label>
-                <select class="form-select" id="limit" name="limit">
-                    <option value="25" <?= ($limit ?? 25) == 25 ? 'selected' : '' ?>>25</option>
-                    <option value="50" <?= ($limit ?? 25) == 50 ? 'selected' : '' ?>>50</option>
-                    <option value="100" <?= ($limit ?? 25) == 100 ? 'selected' : '' ?>>100</option>
-                    <option value="500" <?= ($limit ?? 25) == 500 ? 'selected' : '' ?>>500</option>
-                </select>
-            </div>
+        <div>
+            <label class="form-label">Mostrar</label>
+            <select class="form-control" name="limit">
+                <option value="25" <?= ($limit ?? 25) == 25 ? 'selected' : '' ?>>25</option>
+                <option value="50" <?= ($limit ?? 25) == 50 ? 'selected' : '' ?>>50</option>
+                <option value="100" <?= ($limit ?? 25) == 100 ? 'selected' : '' ?>>100</option>
+                <option value="500" <?= ($limit ?? 25) == 500 ? 'selected' : '' ?>>500</option>
+            </select>
+        </div>
 
-            <div class="col-md-3 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary flex-grow-1">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-                <a href="/admin/subscribers" class="btn btn-outline-secondary">
-                    <i class="fas fa-times"></i> Limpiar
-                </a>
-            </div>
-        </form>
-    </div>
+        <div class="flex items-end gap-2" style="grid-column: span 2;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+            <a href="/admin/subscribers" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Limpiar
+            </a>
+        </div>
+    </form>
 </div>
 
 <!-- Tabla de Suscriptores -->
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-bottom py-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-                Lista de Suscriptores
-                <?php if ($searchQuery || $statusFilter): ?>
-                    <span class="badge bg-info"><?= count($subscribers) ?> resultados</span>
-                <?php endif; ?>
-            </h5>
-
-            <?php if (count($subscribers) > 0 && $statusFilter === 'pending'): ?>
-                <button class="btn btn-sm btn-success" onclick="bulkApprove()">
-                    <i class="fas fa-check-double"></i> Aprobar todos los filtrados
-                </button>
+<div class="card">
+    <div class="card-header flex justify-between items-center">
+        <h3 class="mb-0">
+            Lista de Suscriptores
+            <?php if ($searchQuery || $statusFilter): ?>
+                <span class="badge badge-info"><?= count($subscribers) ?> resultados</span>
             <?php endif; ?>
-        </div>
+        </h3>
+
+        <?php if (count($subscribers) > 0 && $statusFilter === 'pending'): ?>
+            <button class="btn btn-sm btn-success" onclick="bulkApprove()">
+                <i class="fas fa-check-double"></i> Aprobar todos los filtrados
+            </button>
+        <?php endif; ?>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <input
+                            type="checkbox"
+                            id="selectAll"
+                            onchange="toggleSelectAll(this)"
+                        >
+                    </th>
+                    <th>Email</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Origen</th>
+                    <th>Fecha Suscripción</th>
+                    <th>Fecha Verificación</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($subscribers)): ?>
                     <tr>
-                        <th class="ps-4">
-                            <input
-                                type="checkbox"
-                                class="form-check-input"
-                                id="selectAll"
-                                onchange="toggleSelectAll(this)"
-                            >
-                        </th>
-                        <th>Email</th>
-                        <th>Nombre</th>
-                        <th>Estado</th>
-                        <th>Origen</th>
-                        <th>Fecha Suscripción</th>
-                        <th>Fecha Verificación</th>
-                        <th class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($subscribers)): ?>
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
-                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                        <td colspan="8" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-inbox" style="font-size: 3rem; opacity: 0.3; display: block; margin-bottom: 1rem;"></i>
+                            <span style="color: var(--text-muted);">
                                 <?php if ($searchQuery || $statusFilter): ?>
                                     No se encontraron suscriptores con los filtros aplicados
                                 <?php else: ?>
                                     No hay suscriptores registrados
                                 <?php endif; ?>
+                            </span>
+                        </td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($subscribers as $subscriber): ?>
+                        <tr id="subscriber-row-<?= $subscriber['id'] ?>">
+                            <td>
+                                <input
+                                    type="checkbox"
+                                    class="subscriber-checkbox"
+                                    value="<?= $subscriber['id'] ?>"
+                                >
+                            </td>
+                            <td><strong><?= e($subscriber['email']) ?></strong></td>
+                            <td><?= e($subscriber['name'] ?: '-') ?></td>
+                            <td>
+                                <?php
+                                $statusColors = [
+                                    'active' => 'success',
+                                    'pending' => 'warning',
+                                    'unsubscribed' => 'danger'
+                                ];
+                                $statusLabels = [
+                                    'active' => 'Activo',
+                                    'pending' => 'Pendiente',
+                                    'unsubscribed' => 'Desuscrito'
+                                ];
+                                $color = $statusColors[$subscriber['status']] ?? 'secondary';
+                                $label = $statusLabels[$subscriber['status']] ?? $subscriber['status'];
+                                ?>
+                                <span class="badge badge-<?= $color ?>">
+                                    <?= $label ?>
+                                </span>
+                            </td>
+                            <td>
+                                <small style="color: var(--text-muted);">
+                                    <?= e($subscriber['subscription_source'] ?: 'landing_page') ?>
+                                </small>
+                            </td>
+                            <td>
+                                <small>
+                                    <?= format_date_es($subscriber['created_at'], 'short') ?>
+                                </small>
+                            </td>
+                            <td>
+                                <small>
+                                    <?= $subscriber['verified_at'] ? format_date_es($subscriber['verified_at'], 'short') : '-' ?>
+                                </small>
+                            </td>
+                            <td style="text-align: center;">
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <?php if ($subscriber['status'] === 'pending'): ?>
+                                        <button
+                                            class="btn btn-sm btn-success"
+                                            onclick="approveSubscriber(<?= $subscriber['id'] ?>)"
+                                            title="Aprobar suscriptor"
+                                        >
+                                            <i class="fas fa-check"></i> Aprobar
+                                        </button>
+                                        <button
+                                            class="btn btn-sm btn-info"
+                                            onclick="resendVerification(<?= $subscriber['id'] ?>)"
+                                            title="Reenviar email de verificación"
+                                        >
+                                            <i class="fas fa-envelope"></i> Reenviar
+                                        </button>
+                                    <?php endif; ?>
+
+                                    <?php if ($subscriber['status'] === 'active'): ?>
+                                        <span class="badge badge-success" style="padding: 8px 12px;">
+                                            <i class="fas fa-check-circle"></i> Verificado
+                                        </span>
+                                    <?php endif; ?>
+
+                                    <?php if ($subscriber['status'] === 'unsubscribed'): ?>
+                                        <button
+                                            class="btn btn-sm btn-primary"
+                                            onclick="reactivateSubscriber(<?= $subscriber['id'] ?>)"
+                                            title="Reactivar suscriptor"
+                                        >
+                                            <i class="fas fa-redo"></i> Reactivar
+                                        </button>
+                                    <?php endif; ?>
+
+                                    <button
+                                        class="btn btn-sm btn-danger"
+                                        onclick="deleteSubscriber(<?= $subscriber['id'] ?>, '<?= e($subscriber['email']) ?>')"
+                                        title="Eliminar suscriptor"
+                                    >
+                                        <i class="fas fa-trash"></i> Eliminar
+                                    </button>
+                                </div>
                             </td>
                         </tr>
-                    <?php else: ?>
-                        <?php foreach ($subscribers as $subscriber): ?>
-                            <tr id="subscriber-row-<?= $subscriber['id'] ?>">
-                                <td class="ps-4">
-                                    <input
-                                        type="checkbox"
-                                        class="form-check-input subscriber-checkbox"
-                                        value="<?= $subscriber['id'] ?>"
-                                    >
-                                </td>
-                                <td>
-                                    <strong><?= htmlspecialchars($subscriber['email']) ?></strong>
-                                </td>
-                                <td><?= htmlspecialchars($subscriber['name'] ?: '-') ?></td>
-                                <td>
-                                    <?php
-                                    $statusColors = [
-                                        'active' => 'success',
-                                        'pending' => 'warning',
-                                        'unsubscribed' => 'secondary'
-                                    ];
-                                    $statusLabels = [
-                                        'active' => 'Activo',
-                                        'pending' => 'Pendiente',
-                                        'unsubscribed' => 'Desuscrito'
-                                    ];
-                                    $color = $statusColors[$subscriber['status']] ?? 'secondary';
-                                    $label = $statusLabels[$subscriber['status']] ?? $subscriber['status'];
-                                    ?>
-                                    <span class="badge bg-<?= $color ?>">
-                                        <?= $label ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <small class="text-muted">
-                                        <?= htmlspecialchars($subscriber['subscription_source'] ?: 'landing_page') ?>
-                                    </small>
-                                </td>
-                                <td>
-                                    <small>
-                                        <?= date('d/m/Y H:i', strtotime($subscriber['created_at'])) ?>
-                                    </small>
-                                </td>
-                                <td>
-                                    <small>
-                                        <?= $subscriber['verified_at'] ? date('d/m/Y H:i', strtotime($subscriber['verified_at'])) : '-' ?>
-                                    </small>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                        <?php if ($subscriber['status'] === 'pending'): ?>
-                                            <button
-                                                class="btn btn-success btn-sm"
-                                                onclick="approveSubscriber(<?= $subscriber['id'] ?>)"
-                                                style="min-width: 90px;"
-                                            >
-                                                <i class="fas fa-check"></i> Aprobar
-                                            </button>
-                                            <button
-                                                class="btn btn-info btn-sm text-white"
-                                                onclick="resendVerification(<?= $subscriber['id'] ?>)"
-                                                style="min-width: 110px;"
-                                            >
-                                                <i class="fas fa-envelope"></i> Reenviar
-                                            </button>
-                                        <?php endif; ?>
-
-                                        <?php if ($subscriber['status'] === 'active'): ?>
-                                            <span class="badge bg-success" style="padding: 8px 12px;">
-                                                <i class="fas fa-check-circle"></i> Verificado
-                                            </span>
-                                        <?php endif; ?>
-
-                                        <?php if ($subscriber['status'] === 'unsubscribed'): ?>
-                                            <button
-                                                class="btn btn-primary btn-sm"
-                                                onclick="reactivateSubscriber(<?= $subscriber['id'] ?>)"
-                                                style="min-width: 100px;"
-                                            >
-                                                <i class="fas fa-redo"></i> Reactivar
-                                            </button>
-                                        <?php endif; ?>
-
-                                        <button
-                                            class="btn btn-danger btn-sm"
-                                            onclick="deleteSubscriber(<?= $subscriber['id'] ?>, '<?= htmlspecialchars($subscriber['email']) ?>')"
-                                            style="min-width: 85px;"
-                                        >
-                                            <i class="fas fa-trash"></i> Eliminar
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 
     <!-- Paginación -->
     <?php if ($totalPages > 1): ?>
-        <div class="card-footer bg-white border-top">
-            <nav aria-label="Navegación de suscriptores">
-                <ul class="pagination justify-content-center mb-0">
-                    <?php if ($currentPage > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $currentPage - 1 ?><?= $searchQuery ? '&search=' . urlencode($searchQuery) : '' ?><?= $statusFilter ? '&status=' . $statusFilter : '' ?>">
-                                Anterior
-                            </a>
-                        </li>
-                    <?php endif; ?>
+        <div class="card-footer flex justify-center">
+            <div class="pagination">
+                <?php if ($currentPage > 1): ?>
+                    <a class="pagination-link" href="?page=<?= $currentPage - 1 ?><?= $searchQuery ? '&search=' . urlencode($searchQuery) : '' ?><?= $statusFilter ? '&status=' . $statusFilter : '' ?>">
+                        Anterior
+                    </a>
+                <?php endif; ?>
 
-                    <?php for ($i = max(1, $currentPage - 2); $i <= min($totalPages, $currentPage + 2); $i++): ?>
-                        <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
-                            <a class="page-link" href="?page=<?= $i ?><?= $searchQuery ? '&search=' . urlencode($searchQuery) : '' ?><?= $statusFilter ? '&status=' . $statusFilter : '' ?>">
-                                <?= $i ?>
-                            </a>
-                        </li>
-                    <?php endfor; ?>
+                <?php for ($i = max(1, $currentPage - 2); $i <= min($totalPages, $currentPage + 2); $i++): ?>
+                    <a class="pagination-link <?= $i === $currentPage ? 'active' : '' ?>" href="?page=<?= $i ?><?= $searchQuery ? '&search=' . urlencode($searchQuery) : '' ?><?= $statusFilter ? '&status=' . $statusFilter : '' ?>">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
 
-                    <?php if ($currentPage < $totalPages): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $currentPage + 1 ?><?= $searchQuery ? '&search=' . urlencode($searchQuery) : '' ?><?= $statusFilter ? '&status=' . $statusFilter : '' ?>">
-                                Siguiente
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </nav>
+                <?php if ($currentPage < $totalPages): ?>
+                    <a class="pagination-link" href="?page=<?= $currentPage + 1 ?><?= $searchQuery ? '&search=' . urlencode($searchQuery) : '' ?><?= $statusFilter ? '&status=' . $statusFilter : '' ?>">
+                        Siguiente
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
     <?php endif; ?>
 </div>
@@ -340,9 +298,9 @@ include __DIR__ . '/layout/header.php';
 // Mostrar alertas
 function showAlert(message, type = 'success') {
     const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+        <div class="alert alert-${type}" style="margin-bottom: 1rem;">
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <button type="button" class="btn-close" onclick="this.parentElement.remove()">×</button>
         </div>
     `;
     document.getElementById('alertContainer').innerHTML = alertHtml;
@@ -350,10 +308,7 @@ function showAlert(message, type = 'success') {
     // Auto-ocultar después de 5 segundos
     setTimeout(() => {
         const alert = document.querySelector('.alert');
-        if (alert) {
-            alert.classList.remove('show');
-            setTimeout(() => alert.remove(), 150);
-        }
+        if (alert) alert.remove();
     }, 5000);
 
     // Scroll to top
@@ -369,6 +324,7 @@ async function approveSubscriber(id) {
         const response = await fetch('/api/subscribers/approve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ id })
         });
 
@@ -405,6 +361,7 @@ async function deleteSubscriber(id, email) {
         const response = await fetch('/api/subscribers/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ id })
         });
 
@@ -428,6 +385,7 @@ async function resendVerification(id) {
         const response = await fetch('/api/subscribers/resend-verification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ id })
         });
 
@@ -463,6 +421,7 @@ async function reactivateSubscriber(id) {
         const response = await fetch('/api/subscribers/reactivate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ id })
         });
 
@@ -512,6 +471,7 @@ async function bulkApprove() {
         const response = await fetch('/api/subscribers/bulk-approve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ ids: selected })
         });
 
@@ -528,5 +488,3 @@ async function bulkApprove() {
     }
 }
 </script>
-
-<?php include __DIR__ . '/layout/footer.php'; ?>
