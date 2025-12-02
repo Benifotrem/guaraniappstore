@@ -8,8 +8,8 @@
     <title><?php echo $page_title ?? 'Guarani App Store - Apps en Producción'; ?></title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/styles.css">
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/landing.css">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/styles.css?v=<?php echo filemtime(PUBLIC_PATH . '/assets/css/styles.css'); ?>">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/landing.css?v=<?php echo filemtime(PUBLIC_PATH . '/assets/css/landing.css'); ?>">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo ASSETS_URL; ?>/images/favicon.png">
