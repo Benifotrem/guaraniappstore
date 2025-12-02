@@ -58,8 +58,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $form_data['tags'] = json_encode($tags);
         $form_data['tech_stack'] = json_encode($tech_stack);
-        $form_data['logo_url'] = sanitize_input($_POST['logo_url'] ?? '');
-        $form_data['cover_image_url'] = sanitize_input($_POST['cover_image_url'] ?? '');
+
+        // URLs de imágenes - Descargar y re-hostear automáticamente
+        $logo_url = sanitize_input($_POST['logo_url'] ?? '');
+        $cover_url = sanitize_input($_POST['cover_image_url'] ?? '');
+
+        // Solo re-hostear si la URL cambió
+        if (!empty($logo_url) && $logo_url !== $webapp['logo_url']) {
+            $rehosted_logo = download_and_rehost_image($logo_url, 'webapps/logos');
+            $form_data['logo_url'] = $rehosted_logo ?? $logo_url;
+        } else {
+            $form_data['logo_url'] = $logo_url;
+        }
+
+        if (!empty($cover_url) && $cover_url !== $webapp['cover_image_url']) {
+            $rehosted_cover = download_and_rehost_image($cover_url, 'webapps/covers');
+            $form_data['cover_image_url'] = $rehosted_cover ?? $cover_url;
+        } else {
+            $form_data['cover_image_url'] = $cover_url;
+        }
 
         if (empty($errors)) {
             if ($form_data['status'] === 'published' && empty($webapp['published_at'])) {

@@ -328,3 +328,84 @@ function csrf_field() {
     $token = generate_csrf_token();
     return '<input type="hidden" name="csrf_token" value="' . $token . '">';
 }
+
+/**
+ * Descargar imagen de URL externa y re-hostearla localmente
+ * Soluciona problemas de hotlinking bloqueado
+ *
+ * @param string $imageUrl URL de la imagen externa
+ * @param string $subfolder Subcarpeta donde guardar (ej: 'webapps', 'blog')
+ * @return string|null URL local de la imagen o null si falla
+ */
+function download_and_rehost_image($imageUrl, $subfolder = 'webapps') {
+    if (empty($imageUrl) || !filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+        return null;
+    }
+
+    // Si ya es una URL local, devolverla tal cual
+    if (strpos($imageUrl, SITE_URL) === 0 || strpos($imageUrl, ASSETS_URL) === 0) {
+        return $imageUrl;
+    }
+
+    try {
+        // Descargar imagen
+        $ch = curl_init($imageUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            CURLOPT_REFERER => $imageUrl,  // Algunos servicios requieren referer
+        ]);
+
+        $imageData = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        curl_close($ch);
+
+        if ($httpCode !== 200 || empty($imageData)) {
+            log_error("No se pudo descargar imagen: HTTP $httpCode - $imageUrl");
+            return null;
+        }
+
+        // Validar que sea una imagen
+        if (!preg_match('/^image\//i', $contentType)) {
+            log_error("URL no es una imagen válida: $contentType - $imageUrl");
+            return null;
+        }
+
+        // Determinar extensión
+        $extension = 'jpg';  // Por defecto
+        if (preg_match('/image\/(jpeg|jpg|png|gif|webp)/i', $contentType, $matches)) {
+            $extension = strtolower($matches[1]);
+            if ($extension === 'jpeg') $extension = 'jpg';
+        }
+
+        // Crear directorio si no existe
+        $uploadDir = PUBLIC_PATH . '/assets/images/' . $subfolder;
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // Generar nombre único
+        $filename = uniqid('img_', true) . '.' . $extension;
+        $filepath = $uploadDir . '/' . $filename;
+
+        // Guardar imagen
+        if (file_put_contents($filepath, $imageData) === false) {
+            log_error("No se pudo guardar imagen localmente: $filepath");
+            return null;
+        }
+
+        // Devolver URL local
+        $localUrl = ASSETS_URL . '/images/' . $subfolder . '/' . $filename;
+        log_info("Imagen re-hosteada exitosamente: $imageUrl -> $localUrl");
+
+        return $localUrl;
+
+    } catch (Exception $e) {
+        log_error("Error descargando imagen: " . $e->getMessage());
+        return null;
+    }
+}
