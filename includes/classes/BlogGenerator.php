@@ -188,6 +188,10 @@ Formato de respuesta (JSON):
     }
 
     private function saveArticle($article, $prompt, $trends) {
+        // IMPORTANTE: Reconectar a MySQL antes de guardar
+        // La generación con IA puede tardar 1-2 minutos y la conexión se cierra
+        $this->db = Database::reconnect();
+
         $slug = generate_slug($article['title']);
 
         $existingSlug = $this->db->fetchOne("SELECT id FROM blog_articles WHERE slug = ?", [$slug]);
