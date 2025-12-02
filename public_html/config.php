@@ -165,6 +165,7 @@ $APP_ROUTES = [
     'api/webapp/view' => 'api_webapp_view',
     'api/webapp/click' => 'api_webapp_click',
     'api/blog/view' => 'api_blog_view',
+    'api/upload-screenshot' => 'api/upload_screenshot',
 
     // API de gestión de suscriptores
     'api/subscribers/approve' => 'api_subscribers',
