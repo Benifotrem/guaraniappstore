@@ -128,10 +128,22 @@
                             <div class="webapp-card-stats">
                                 <span>👁 <?php echo format_number($webapp['view_count']); ?></span>
                             </div>
-                            <a href="<?php echo get_url('webapp/' . $webapp['slug']); ?>"
-                               class="btn-webapp-view">
-                                Ver Más →
-                            </a>
+                            <div class="webapp-card-actions">
+                                <?php if (!empty($webapp['app_url'])): ?>
+                                    <a href="<?php echo e($webapp['app_url']); ?>"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="btn-webapp-launch"
+                                       onclick="trackWebappClick(<?php echo $webapp['id']; ?>)"
+                                       title="Abrir aplicación">
+                                        🚀 Abrir App
+                                    </a>
+                                <?php endif; ?>
+                                <a href="<?php echo get_url('webapp/' . $webapp['slug']); ?>"
+                                   class="btn-webapp-view">
+                                    Detalles →
+                                </a>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>

@@ -681,6 +681,7 @@ a:hover {
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .webapp-card-stats {
@@ -690,8 +691,32 @@ a:hover {
     gap: 1rem;
 }
 
+.webapp-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-webapp-launch {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-webapp-launch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
 .btn-webapp-view {
-    padding: 8px 20px;
+    padding: 8px 16px;
     background: var(--guarani-primary);
     color: white;
     text-decoration: none;
