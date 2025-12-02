@@ -197,8 +197,13 @@ document.getElementById('generate-btn').addEventListener('click', function() {
         },
         body: 'csrf_token=<?php echo generate_csrf_token(); ?>'
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
+
         if (data.success) {
             // Completar barra de progreso
             const progressBar = document.getElementById('progress-bar');
@@ -218,6 +223,7 @@ document.getElementById('generate-btn').addEventListener('click', function() {
             });
 
             // Redirigir después de 1 segundo
+            console.log('Redirigiendo a:', data.redirect);
             setTimeout(() => {
                 window.location.href = data.redirect;
             }, 1000);
