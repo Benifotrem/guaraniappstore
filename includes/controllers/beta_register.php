@@ -101,8 +101,8 @@ try {
  */
 function send_beta_welcome_email($name, $email, $access_token) {
     $dashboard_url = SITE_URL . '/beta/dashboard?token=' . $access_token;
-    $discord_invite = get_setting('discord_invite_url', '#');
-    $telegram_invite = get_setting('telegram_invite_url', '#');
+    $discord_invite = 'https://discord.gg/TU_INVITE'; // Cambia por tu link real cuando lo tengas
+    $telegram_bot = 'https://t.me/guaraniappstore_bot';
 
     $subject = '¡Bienvenido al Programa Beta de Guarani App Store! 🚀';
 
@@ -138,18 +138,8 @@ function send_beta_welcome_email($name, $email, $access_token) {
                 <div class='card'>
                     <h3>2️⃣ Únete a la Comunidad</h3>
                     <p>Conéctate con otros beta testers y el equipo de desarrollo:</p>
-                    <a href='$discord_invite' class='btn'>Unirse a Discord</a>
-                    <a href='$telegram_invite' class='btn'>Unirse a Telegram</a>
-                </div>
-
-                <div class='card'>
-                    <h3>3️⃣ Tus Beneficios</h3>
-                    <ul>
-                        <li>🎁 <strong>Acceso Gratuito de por Vida</strong> a todas las apps</li>
-                        <li>👑 <strong>Features Premium</strong> sin costo</li>
-                        <li>🏆 <strong>Reconocimiento</strong> en los créditos de la app</li>
-                        <li>💬 <strong>Línea Directa</strong> con desarrolladores</li>
-                    </ul>
+                    <a href='$telegram_bot' class='btn'>Unirse al Bot de Telegram</a>
+                    <p style='font-size: 14px; color: #718096; margin-top: 10px;'>Discord próximamente</p>
                 </div>
 
                 <div class='card'>

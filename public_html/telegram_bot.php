@@ -20,22 +20,21 @@
 
 // Cargar configuración
 define('APP_LOADED', true);
-require_once __DIR__ . '/public_html/config.php';
+require_once __DIR__ . '/config.php';
 require_once INCLUDES_PATH . '/classes/Database.php';
 
 // Inicializar base de datos
-$db = new Database();
+$db = Database::getInstance();
 
 // Obtener token del bot desde configuración o variable de entorno
-$bot_token = getenv('TELEGRAM_BOT_TOKEN') ?: 'TU_BOT_TOKEN_AQUI';
+$bot_token = getenv('TELEGRAM_BOT_TOKEN') ?: '8507170288:AAEEIvm4WjStUHBi6AqckcZWfr6a8UpYlJ8';
 
 // Obtener update de Telegram
 $content = file_get_contents("php://input");
 $update = json_decode($content, true);
 
 // Logs para debugging
-file_put_contents(__DIR__ . '/logs/telegram_bot.log', date('Y-m-d H:i:s') . " - " . $content . "\n", FILE_APPEND);
-
+file_put_contents(__DIR__ . '/../logs/telegram_bot.log', date('Y-m-d H:i:s') . " - " . $content . "\n", FILE_APPEND);
 if (!$update) {
     http_response_code(200);
     exit;

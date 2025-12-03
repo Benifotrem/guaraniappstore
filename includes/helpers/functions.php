@@ -160,11 +160,13 @@ function get_client_ip() {
  * Redirigir a una URL
  */
 function redirect($url, $permanent = false) {
+    if (!preg_match('/^https?:\/\//', $url)) {
+        $url = get_url($url);
+    }
     $status_code = $permanent ? 301 : 302;
     header("Location: {$url}", true, $status_code);
     exit;
 }
-
 /**
  * Obtener URL base del sitio
  */
@@ -288,15 +290,51 @@ function update_setting($key, $value) {
  * Enviar email
  */
 function send_email($to, $subject, $message, $isHTML = true) {
-    if (!SMTP_ENABLED) {
+    if (!EMAIL_ENABLED) {
+        log_error("Email no enviado - EMAIL_ENABLED = false: $to");
         return false;
     }
+    
+    $url = 'https://api.brevo.com/v3/smtp/email';
+    
+    $data = [
+        'sender' => [
+            'name' => EMAIL_FROM_NAME,
+            'email' => EMAIL_FROM_EMAIL
+        ],
+        'to' => [
+            ['email' => $to]
+        ],
+        'subject' => $subject,
+        'htmlContent' => $isHTML ? $message : nl2br($message)
+    ];
+    
+    $headers = [
+        'accept: application/json',
+        'api-key: ' . BREVO_API_KEY,
+        'content-type: application/json'
+    ];
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    log_error("Brevo response - HTTP $http_code - Body: $response - To: $to");    
 
-    // Aquí se implementaría el envío real con PHPMailer o similar
-    // Por ahora retornamos true para desarrollo
-    return true;
+    if ($http_code >= 200 && $http_code < 300) {
+        log_error("✅ Email enviado exitosamente a: $to");
+        return true;
+    } else {
+        log_error("❌ Error enviando email a $to - HTTP $http_code - Response: $response");
+        return false;
+    }
 }
-
 /**
  * Formatear número con separadores
  */

@@ -18,7 +18,7 @@ if (!defined('APP_LOADED')) {
 define('DB_HOST', 'localhost');                    // Cambiar por tu host de MySQL
 define('DB_NAME', 'u489458217_Central');           // Cambiar por tu nombre de BD
 define('DB_USER', 'u489458217_Cesar');             // Cambiar por tu usuario de BD
-define('DB_PASS', '5;vtVURM&X;d');                 // Cambiar por tu contraseña de BD
+define('DB_PASS', 'qJnUwgZyqe!FN_8');                 // Cambiar por tu contraseña de BD
 define('DB_CHARSET', 'utf8mb4');
 
 // ================================================
@@ -26,7 +26,7 @@ define('DB_CHARSET', 'utf8mb4');
 // ================================================
 define('SITE_NAME', 'Guarani App Store');
 define('SITE_URL', 'https://guaraniappstore.com'); // Cambiar por tu dominio
-define('SITE_EMAIL', 'hola@guaraniappstore.com.py');
+define('SITE_EMAIL', 'hola@guaraniappstore.com');
 
 // ================================================
 // PATHS DEL SISTEMA
@@ -63,9 +63,9 @@ define('TWO_FA_ENABLED_BY_DEFAULT', false);
 // ================================================
 // CONFIGURACIÓN DE EMAILS - BREVO (SENDINBLUE)
 // ================================================
-define('EMAIL_ENABLED', false);                        // Cambiar a true para activar
-define('BREVO_API_KEY', '');                           // Tu API Key de Brevo
-define('EMAIL_FROM_EMAIL', 'noreply@guaraniappstore.com.py');
+define('EMAIL_ENABLED', true);                        // Cambiar a true para activar
+define('BREVO_API_KEY', getenv('BREVO_API_KEY') ?: '');
+define('EMAIL_FROM_EMAIL', 'noreply@guaraniappstore.com');
 define('EMAIL_FROM_NAME', 'Guarani App Store');
 
 // Legacy SMTP config (deprecado, usar Brevo)
@@ -136,6 +136,7 @@ $APP_ROUTES = [
     'home' => 'home',
     'webapps' => 'webapps',
     'webapp' => 'webapp_detail',
+    'faq' => 'faq',    
     'blog' => 'blog',
     'blog/article' => 'blog_article',
     'subscribe' => 'subscribe',
@@ -146,6 +147,8 @@ $APP_ROUTES = [
     'beta/join' => 'beta_join',
     'beta/register' => 'beta_register',
     'beta/dashboard' => 'beta_dashboard',
+    'beta' => 'beta',
+    'beta/login-process' => 'beta_login_process',
 
     // Rutas de Feedback
     'feedback/submit' => 'feedback_submit',

@@ -5,126 +5,120 @@
  * Dashboard personal para beta testers autenticados
  */
 
-// Manejar autenticación por token
-$token = $_GET['token'] ?? $_SESSION['beta_token'] ?? null;
+// Inicializar base de datos
+$db = Database::getInstance();
+
+// Verificar autenticación por sesión o token
 $beta_tester = null;
 
-if ($token) {
-    // Buscar beta tester por token
+// Prioridad 1: Sesión activa
+if (isset($_SESSION['beta_user_id'])) {
     $beta_tester = $db->fetchOne("
-        SELECT *
-        FROM beta_testers
+        SELECT * FROM beta_testers 
+        WHERE id = ? AND status = 'active'
+    ", [$_SESSION['beta_user_id']]);
+}
+
+// Prioridad 2: Token en URL (para compatibilidad con emails)
+if (!$beta_tester && isset($_GET['token'])) {
+    $token = $_GET['token'];
+    $beta_tester = $db->fetchOne("
+        SELECT * FROM beta_testers 
         WHERE access_token = ? AND status = 'active'
     ", [$token]);
-
+    
+    // Si encuentra usuario con token, crear sesión
     if ($beta_tester) {
-        // Guardar token en sesión
+        $_SESSION['beta_user_id'] = $beta_tester['id'];
+        $_SESSION['beta_user_name'] = $beta_tester['name'];
+        $_SESSION['beta_user_email'] = $beta_tester['email'];
         $_SESSION['beta_token'] = $token;
-        $_SESSION['beta_tester_id'] = $beta_tester['id'];
     }
 }
 
-// Si no hay beta tester autenticado, redirigir a join
+// Si no está autenticado, redirigir al login
 if (!$beta_tester) {
-    $_SESSION['error'] = 'Token inválido o expirado. Por favor regístrate primero.';
-    redirect('beta/join');
-    exit;
+    redirect('beta');
 }
 
-// Obtener estadísticas personales
-$personal_stats = $db->fetchOne("
-    SELECT
-        bugs_reported,
-        suggestions_accepted,
-        contribution_level,
-        created_at
-    FROM beta_testers
-    WHERE id = ?
-", [$beta_tester['id']]);
+// Obtener estadísticas del beta tester
+$stats = [
+    'bugs_reported' => $beta_tester['bugs_reported'] ?? 0,
+    'suggestions_accepted' => $beta_tester['suggestions_accepted'] ?? 0,
+    'contribution_level' => $beta_tester['contribution_level'] ?? 'bronze',
+    'total_contributions' => ($beta_tester['bugs_reported'] ?? 0) + ($beta_tester['suggestions_accepted'] ?? 0)
+];
 
-// Obtener feedback enviado por el tester
-$my_feedback = $db->fetchAll("
-    SELECT
-        fr.id,
-        fr.type,
-        fr.title,
-        fr.status,
-        fr.created_at,
-        w.title as webapp_title,
-        w.slug as webapp_slug
-    FROM feedback_reports fr
-    JOIN webapps w ON fr.webapp_id = w.id
-    WHERE fr.beta_tester_id = ?
-    ORDER BY fr.created_at DESC
-    LIMIT 10
-", [$beta_tester['id']]);
-
-// Obtener posición en el leaderboard
-$leaderboard_position = $db->fetchOne("
+// Obtener posición en el ranking
+$ranking_position = $db->fetchOne("
     SELECT COUNT(*) + 1 as position
     FROM beta_testers
-    WHERE status = 'active' AND (bugs_reported + suggestions_accepted) > ?
-", [$personal_stats['bugs_reported'] + $personal_stats['suggestions_accepted']]);
+    WHERE status = 'active' 
+    AND (bugs_reported + suggestions_accepted) > ?
+", [$stats['total_contributions']]);
+$stats['ranking_position'] = $ranking_position['position'] ?? 0;
 
-// Obtener top 10 beta testers (leaderboard)
+// Obtener leaderboard (top 10)
 $leaderboard = $db->fetchAll("
-    SELECT
+    SELECT 
         id,
         name,
         contribution_level,
         bugs_reported,
         suggestions_accepted,
-        (bugs_reported + suggestions_accepted) as total_contributions
+        (bugs_reported + suggestions_accepted) as total
     FROM beta_testers
     WHERE status = 'active'
-    ORDER BY total_contributions DESC, created_at ASC
+    ORDER BY total DESC, created_at ASC
     LIMIT 10
 ");
 
-// Obtener apps disponibles para testear
+// Obtener apps disponibles
 $available_apps = $db->fetchAll("
-    SELECT
-        id,
-        title,
-        slug,
-        short_description,
-        logo_url,
-        app_url,
-        category,
-        created_at
+    SELECT id, title, slug, short_description, app_url, category, logo_url
     FROM webapps
     WHERE status = 'published'
     ORDER BY created_at DESC
     LIMIT 6
 ");
 
-// Calcular siguiente nivel
-$total_contributions = $personal_stats['bugs_reported'] + $personal_stats['suggestions_accepted'];
-$current_level = $personal_stats['contribution_level'];
-$next_level = null;
-$contributions_to_next = 0;
+// Obtener historial de feedback del usuario
+$my_feedback = $db->fetchAll("
+    SELECT 
+        fr.id,
+        fr.type,
+        fr.title,
+        fr.status,
+        fr.created_at,
+        w.title as webapp_title
+    FROM feedback_reports fr
+    LEFT JOIN webapps w ON fr.webapp_id = w.id
+    WHERE fr.beta_tester_id = ?
+    ORDER BY fr.created_at DESC
+    LIMIT 10
+", [$beta_tester['id']]);
 
+// Variables para la vista (compatibilidad con el dashboard original)
+$personal_stats = $stats;
+$personal_stats['contribution_level'] = $beta_tester['contribution_level'];
+$total_contributions = $stats['total_contributions'];
+$leaderboard_position = $stats['ranking_position'];
+
+// Calcular siguiente nivel
 $level_thresholds = [
-    'bronze' => ['next' => 'silver', 'required' => 10],
-    'silver' => ['next' => 'gold', 'required' => 25],
-    'gold' => ['next' => 'platinum', 'required' => 50],
-    'platinum' => ['next' => null, 'required' => 0]
+    'bronze' => 10,
+    'silver' => 25,
+    'gold' => 50,
+    'platinum' => 999
 ];
 
-if (isset($level_thresholds[$current_level])) {
-    $next_level = $level_thresholds[$current_level]['next'];
-    $contributions_to_next = $level_thresholds[$current_level]['required'] - $total_contributions;
-}
+$current_level = $beta_tester['contribution_level'];
+$next_level = null;
+if ($current_level === 'bronze') $next_level = 'silver';
+elseif ($current_level === 'silver') $next_level = 'gold';
+elseif ($current_level === 'gold') $next_level = 'platinum';
+
+$contributions_to_next = $next_level ? $level_thresholds[$next_level] - $total_contributions : 0;
 
 // Renderizar vista
-render_view('beta/dashboard', [
-    'beta_tester' => $beta_tester,
-    'personal_stats' => $personal_stats,
-    'my_feedback' => $my_feedback,
-    'leaderboard_position' => $leaderboard_position['position'],
-    'leaderboard' => $leaderboard,
-    'available_apps' => $available_apps,
-    'total_contributions' => $total_contributions,
-    'next_level' => $next_level,
-    'contributions_to_next' => $contributions_to_next
-]);
+include INCLUDES_PATH . '/views/beta/dashboard.php';

@@ -1,0 +1,133 @@
+<?php
+/**
+ * Controller: Beta Dashboard
+ * Ruta: /beta/dashboard
+ * Dashboard personal para beta testers autenticados
+ */
+
+// Inicializar base de datos
+$db = Database::getInstance();
+
+// Manejar autenticación por token
+$token = $_GET['token'] ?? $_SESSION['beta_token'] ?? null;
+$beta_tester = null;
+
+if ($token) {
+    // Buscar beta tester por token
+    $beta_tester = $db->fetchOne("
+        SELECT *
+        FROM beta_testers
+        WHERE access_token = ? AND status = 'active'
+    ", [$token]);
+
+    if ($beta_tester) {
+        // Guardar token en sesión
+        $_SESSION['beta_token'] = $token;
+        $_SESSION['beta_tester_id'] = $beta_tester['id'];
+    }
+}
+
+// Si no hay beta tester autenticado, redirigir a join
+if (!$beta_tester) {
+    $_SESSION['error'] = 'Token inválido o expirado. Por favor regístrate primero.';
+    redirect('beta/join');
+    exit;
+}
+
+// Obtener estadísticas personales
+$personal_stats = $db->fetchOne("
+    SELECT
+        bugs_reported,
+        suggestions_accepted,
+        contribution_level,
+        created_at
+    FROM beta_testers
+    WHERE id = ?
+", [$beta_tester['id']]);
+
+// Obtener feedback enviado por el tester
+$my_feedback = $db->fetchAll("
+    SELECT
+        fr.id,
+        fr.type,
+        fr.title,
+        fr.status,
+        fr.created_at,
+        w.title as webapp_title,
+        w.slug as webapp_slug
+    FROM feedback_reports fr
+    JOIN webapps w ON fr.webapp_id = w.id
+    WHERE fr.beta_tester_id = ?
+    ORDER BY fr.created_at DESC
+    LIMIT 10
+", [$beta_tester['id']]);
+
+// Obtener posición en el leaderboard
+$leaderboard_position = $db->fetchOne("
+    SELECT COUNT(*) + 1 as position
+    FROM beta_testers
+    WHERE status = 'active' AND (bugs_reported + suggestions_accepted) > ?
+", [$personal_stats['bugs_reported'] + $personal_stats['suggestions_accepted']]);
+
+// Obtener top 10 beta testers (leaderboard)
+$leaderboard = $db->fetchAll("
+    SELECT
+        id,
+        name,
+        contribution_level,
+        bugs_reported,
+        suggestions_accepted,
+        (bugs_reported + suggestions_accepted) as total_contributions
+    FROM beta_testers
+    WHERE status = 'active'
+    ORDER BY total_contributions DESC, created_at ASC
+    LIMIT 10
+");
+
+// Obtener apps disponibles para testear
+$available_apps = $db->fetchAll("
+    SELECT
+        id,
+        title,
+        slug,
+        short_description,
+        logo_url,
+        app_url,
+        category,
+        created_at
+    FROM webapps
+    WHERE status = 'published'
+    ORDER BY created_at DESC
+    LIMIT 6
+");
+
+// Calcular siguiente nivel
+$total_contributions = $personal_stats['bugs_reported'] + $personal_stats['suggestions_accepted'];
+$current_level = $personal_stats['contribution_level'];
+$next_level = null;
+$contributions_to_next = 0;
+
+$level_thresholds = [
+    'bronze' => ['next' => 'silver', 'required' => 10],
+    'silver' => ['next' => 'gold', 'required' => 25],
+    'gold' => ['next' => 'platinum', 'required' => 50],
+    'platinum' => ['next' => null, 'required' => 0]
+];
+
+if (isset($level_thresholds[$current_level])) {
+    $next_level = $level_thresholds[$current_level]['next'];
+    $contributions_to_next = $level_thresholds[$current_level]['required'] - $total_contributions;
+}
+
+// Renderizar vista
+render_view('beta/dashboard', [
+    'beta_tester' => $beta_tester,
+    'personal_stats' => $personal_stats,
+    'my_feedback' => $my_feedback,
+    'leaderboard_position' => $leaderboard_position['position'],
+    'leaderboard' => $leaderboard,
+    'available_apps' => $available_apps,
+    'total_contributions' => $total_contributions,
+    'next_level' => $next_level,
+    'contributions_to_next' => $contributions_to_next
+]);
