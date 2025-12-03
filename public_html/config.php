@@ -142,6 +142,11 @@ $APP_ROUTES = [
     'verify-subscription' => 'verify_subscription',
     'unsubscribe' => 'unsubscribe',
 
+    // Rutas Beta Testers
+    'beta/join' => 'beta_join',
+    'beta/register' => 'beta_register',
+    'beta/dashboard' => 'beta_dashboard',
+
     // Rutas de administración
     'admin' => 'admin_login',
     'admin/login' => 'admin_login',
