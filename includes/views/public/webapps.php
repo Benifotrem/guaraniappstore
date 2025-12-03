@@ -193,3 +193,9 @@
         <?php endif; ?>
     </div>
 </section>
+
+<?php
+// Incluir widget de feedback
+include VIEWS_PATH . '/feedback/widget.php';
+?>
+

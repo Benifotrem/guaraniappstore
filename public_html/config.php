@@ -147,6 +147,9 @@ $APP_ROUTES = [
     'beta/register' => 'beta_register',
     'beta/dashboard' => 'beta_dashboard',
 
+    // Rutas de Feedback
+    'feedback/submit' => 'feedback_submit',
+
     // Rutas de administración
     'admin' => 'admin_login',
     'admin/login' => 'admin_login',
@@ -162,6 +165,8 @@ $APP_ROUTES = [
     'admin/blog/delete' => 'admin_blog_delete',
     'admin/blog/generate' => 'admin_blog_generate',
     'admin/subscribers' => 'admin_subscribers',
+    'admin/feedback' => 'admin_feedback',
+    'admin/feedback/view' => 'admin_feedback_view',
     'admin/settings' => 'admin_settings',
     'admin/profile' => 'admin_profile',
 
