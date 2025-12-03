@@ -805,3 +805,50 @@ a:hover {
     max-width: 100% !important;
     height: auto !important;
 }
+
+/* ===================================================================
+   WEBAPPS PAGE - Video Background
+   =================================================================== */
+
+.webapps-section-with-video {
+    position: relative;
+    overflow: hidden;
+    background: #000; /* Fallback mientras carga el video */
+}
+
+.webapps-video-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    object-fit: cover;
+    opacity: 0.4; /* Más sutil que en el hero */
+}
+
+.webapps-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(11, 94, 215, 0.55), rgba(0, 200, 83, 0.55));
+    z-index: 1;
+}
+
+/* Asegurar que las tarjetas tengan fondo para buena legibilidad */
+.webapps-section-with-video .webapp-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .webapps-video-bg {
+        min-width: auto;
+        width: 100%;
+    }
+}
