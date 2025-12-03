@@ -1,9 +1,18 @@
-<section class="section">
-    <div class="container">
+<section class="section webapps-section-with-video">
+    <!-- Video de fondo -->
+    <video class="webapps-video-bg" autoplay muted loop playsinline>
+        <source src="<?php echo ASSETS_URL; ?>/videos/hero-background.mp4" type="video/mp4">
+        <source src="<?php echo ASSETS_URL; ?>/videos/hero-background.webm" type="video/webm">
+    </video>
+
+    <!-- Overlay para mejorar legibilidad -->
+    <div class="webapps-video-overlay"></div>
+
+    <div class="container" style="position: relative; z-index: 2;">
         <!-- Header -->
         <div class="text-center mb-5">
-            <h1 class="mb-2">Descubre Nuestras Aplicaciones</h1>
-            <p class="text-muted" style="max-width: 600px; margin: 0 auto;">
+            <h1 class="mb-2" style="color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);">Descubre Nuestras Aplicaciones</h1>
+            <p class="text-muted" style="max-width: 600px; margin: 0 auto; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);">
                 Explora las mejores aplicaciones web diseñadas para PYMEs latinoamericanas
             </p>
         </div>
