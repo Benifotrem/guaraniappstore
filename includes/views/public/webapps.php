@@ -196,6 +196,7 @@
 
 <?php
 // Incluir widget de feedback
-include VIEWS_PATH . '/feedback/widget.php';
+include INCLUDES_PATH . '/views/feedback/widget.php';
 ?>
 
+<?php include INCLUDES_PATH . '/views/landing/footer.php'; ?>
