@@ -49,5 +49,18 @@ $_SESSION['beta_token'] = $token;
 // Log de login
 log_error("Beta tester login exitoso: {$beta_user['name']} ({$beta_user['email']}) - ID: {$beta_user['id']}");
 
+// Recordar sesión si el usuario lo marcó
+if (isset($_POST['remember_me']) && $_POST['remember_me'] == '1') {
+    // Configurar cookie que dure 30 días
+    $expire = time() + (30 * 24 * 60 * 60); // 30 días
+    setcookie('beta_remember_token', $token, [
+        'expires' => $expire,
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+}
+
 // Redirigir al dashboard
 redirect('beta/dashboard');

@@ -32,25 +32,6 @@
         }
 
         .dashboard-header {
-        }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .btn-logout {
-            padding: 10px 20px;
-            background: #ef4444;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        .btn-logout:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
             background: white;
             border-radius: 16px;
             padding: 32px;
@@ -367,7 +348,7 @@
                     <h1>👋 Hola, <?php echo htmlspecialchars($beta_tester['name']); ?>!</h1>
                     <div class="email"><?php echo htmlspecialchars($beta_tester['email']); ?></div>
                 </div>
-                <div class="header-actions">
+                <div>
                     <span class="level-badge level-<?php echo $personal_stats['contribution_level']; ?>">
                         <?php
                         $level_names = [
@@ -379,12 +360,6 @@
                         echo $level_names[$personal_stats['contribution_level']];
                         ?>
                     </span>
-                    <a href="<?php echo get_url('beta/edit-profile'); ?>" style="padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; transition: all 0.3s ease;">
-                        ✏️ Editar Perfil
-                    </a>
-                    <a href="<?php echo get_url('beta/logout'); ?>" class="btn-logout" onclick="return confirm('¿Seguro que quieres cerrar sesión?');">
-                        🚪 Cerrar Sesión
-                    </a>
                 </div>
             </div>
         </div>

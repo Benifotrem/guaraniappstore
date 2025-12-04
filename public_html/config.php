@@ -149,6 +149,10 @@ $APP_ROUTES = [
     'beta/dashboard' => 'beta_dashboard',
     'beta' => 'beta',
     'beta/login-process' => 'beta_login_process',
+    'beta/logout' => 'beta_logout',
+    'beta/recover-token' => 'beta_recover_token',
+    'beta/edit-profile' => 'beta_edit_profile',
+    'beta/unsubscribe' => 'beta_unsubscribe',
 
     // Rutas de Feedback
     'feedback/submit' => 'feedback_submit',

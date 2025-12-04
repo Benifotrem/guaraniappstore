@@ -118,9 +118,6 @@
             </div>
         <?php endif; ?>
 
-
-
-
         <?php if (isset($_SESSION['login_error'])): ?>
             <div class="alert alert-error">
                 <?php echo htmlspecialchars($_SESSION['login_error']); ?>
