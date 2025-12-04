@@ -17,6 +17,7 @@ if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
 // Validar y sanitizar inputs
 $name = sanitize_input($_POST['name'] ?? '');
 $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
+$telegram_username = trim($_POST['telegram_username'] ?? '');
 $country = sanitize_input($_POST['country'] ?? '');
 $company = sanitize_input($_POST['company'] ?? '');
 $interested_app = sanitize_input($_POST['interested_app'] ?? '');
@@ -74,6 +75,7 @@ try {
         'problems_to_solve' => $problems_to_solve,
         'technical_level' => $technical_level,
         'status' => 'pending',
+        'telegram_username' => $telegram_username ?: null,
         'access_token' => $access_token
     ]);
 

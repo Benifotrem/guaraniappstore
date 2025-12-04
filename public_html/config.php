@@ -172,6 +172,9 @@ $APP_ROUTES = [
     'admin/feedback/view' => 'admin_feedback_view',
     'admin/settings' => 'admin_settings',
     'admin/profile' => 'admin_profile',
+    'admin/beta-testers' => 'admin_beta_testers',
+    'admin/beta-testers/approve' => 'admin_beta_testers_approve',
+    'admin/beta-testers/change-level' => 'admin_beta_testers_change_level',
 
     // APIs internas
     'ajax/blog-generate' => 'ajax_blog_generate',

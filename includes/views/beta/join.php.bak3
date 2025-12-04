@@ -301,19 +301,6 @@ include INCLUDES_PATH . '/views/landing/header.php';
                            required
                            placeholder="tu@email.com">
                     <p class="form-help">Te enviaremos las credenciales de acceso a este email</p>
-                <div class="form-group">
-                    <label for="telegram_username">
-                        Username de Telegram (opcional)
-                    </label>
-                    <input type="text"
-                           id="telegram_username"
-                           name="telegram_username"
-                           class="form-input"
-                           placeholder="tu_username (sin @)"
-                           pattern="[a-zA-Z0-9_]{5,32}"
-                           title="Username de Telegram sin @, entre 5 y 32 caracteres">
-                    <p class="form-help">Para recibir notificaciones por nuestro bot @guaraniappstore_bot</p>
-                </div>
                 </div>
 
                 <div class="form-group">
