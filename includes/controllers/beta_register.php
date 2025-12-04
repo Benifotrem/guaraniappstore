@@ -81,14 +81,24 @@ try {
 
     // Enviar email de bienvenida
     $welcome_email_sent = send_beta_welcome_email($name, $email, $access_token);
-
+    
     // Log del registro
     log_error("Nuevo Beta Tester registrado: $name ($email) - ID: $beta_tester_id", [
         'beta_tester_id' => $beta_tester_id,
         'interested_app' => $interested_app,
         'technical_level' => $technical_level
     ]);
-
+    
+    // Notificar al admin
+    notify_admin_new_registration([
+        'id' => $beta_tester_id,
+        'name' => $name,
+        'email' => $email,
+        'telegram_username' => $telegram_username,
+        'country' => $country,
+        'company' => $company
+    ]);
+    
     $_SESSION['beta_success'] = true;
     redirect('beta/join');
 

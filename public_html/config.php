@@ -212,3 +212,9 @@ spl_autoload_register(function ($class) {
         require_once $file;
     }
 });
+
+// Telegram Bot Configuration
+define('TELEGRAM_BOT_TOKEN', '8507170288:AAEEIvm4WjStUHBi6AqckcZWfr6a8UpYlJ8');
+
+// Admin Email for notifications
+define('ADMIN_EMAIL', 'cesarruzafa@gmail.com');

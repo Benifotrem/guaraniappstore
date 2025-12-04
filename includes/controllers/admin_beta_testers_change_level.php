@@ -30,9 +30,23 @@ if (!$id || !in_array($level, $valid_levels)) {
 
 $db = Database::getInstance();
 
+// Obtener nivel anterior
+$tester = $db->fetchOne("SELECT * FROM beta_testers WHERE id = ?", [$id]);
+$old_level = $tester['contribution_level'];
+
 // Actualizar nivel
 $db->query("UPDATE beta_testers SET contribution_level = ? WHERE id = ?", [$level, $id]);
 
-log_error("Nivel cambiado a $level para beta tester ID: $id por admin");
+// Obtener datos actualizados
+$tester = $db->fetchOne("SELECT * FROM beta_testers WHERE id = ?", [$id]);
 
-echo json_encode(['success' => true, 'message' => 'Nivel actualizado exitosamente']);
+// Enviar notificaciones
+send_level_change_email($tester, $old_level, $level);
+
+if ($tester['telegram_id']) {
+    send_telegram_level_notification($tester['telegram_id'], $tester, $old_level, $level);
+}
+
+log_error("Nivel cambiado de $old_level a $level para beta tester ID: $id por admin");
+
+echo json_encode(['success' => true, 'message' => 'Nivel actualizado y notificaciones enviadas']);

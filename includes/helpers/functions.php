@@ -650,3 +650,6 @@ function optimize_webapp_image($imagePath, $maxWidth = 1200, $maxHeight = 800, $
 
     return $success;
 }
+
+// Cargar sistema de notificaciones
+require_once INCLUDES_PATH . '/helpers/notifications.php';
