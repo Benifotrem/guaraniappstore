@@ -158,3 +158,5 @@
     border-color: var(--guarani-primary);
 }
 </style>
+
+<?php include INCLUDES_PATH . '/views/landing/footer.php'; ?>

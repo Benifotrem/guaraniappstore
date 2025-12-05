@@ -47,8 +47,21 @@ $db->insert('blog_subscribers', [
     'subscription_source' => 'landing_page'
 ]);
 
-// TODO: Enviar email de confirmación
-// send_email($email, 'Confirma tu suscripción', $verification_link);
+// Enviar email de confirmación con Brevo
+if (EMAIL_ENABLED && BREVO_API_KEY) {
+    require_once INCLUDES_PATH . '/classes/BrevoMailer.php';
 
-$_SESSION['success'] = '¡Gracias por suscribirte! Te hemos enviado un email de confirmación.';
+    $mailer = new BrevoMailer(BREVO_API_KEY, EMAIL_FROM_EMAIL, EMAIL_FROM_NAME);
+    $result = $mailer->sendVerificationEmail($email, '', $verification_token);
+
+    if ($result['success']) {
+        $_SESSION['success'] = '¡Gracias por suscribirte! Te hemos enviado un email de confirmación.';
+    } else {
+        $_SESSION['warning'] = '¡Gracias por suscribirte! Sin embargo, hubo un problema al enviar el email de confirmación. Contacta al administrador.';
+        error_log('Failed to send verification email: ' . $result['message']);
+    }
+} else {
+    $_SESSION['success'] = '¡Gracias por suscribirte! Tu suscripción está pendiente de activación.';
+}
+
 redirect(get_url());
