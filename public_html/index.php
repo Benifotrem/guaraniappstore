@@ -28,13 +28,19 @@ global $APP_ROUTES;
 // Inicializar variable
 $controller_name = null;
 
-// Verificar rutas dinámicas (ej: blog/article/slug)
+// Verificar rutas dinámicas (ej: blog/article/slug, webapp/slug)
 $route_parts = explode("/", $route);
 
 // Ruta: blog/article/slug
 if (count($route_parts) >= 3 && $route_parts[0] === "blog" && $route_parts[1] === "article") {
     $_GET["slug"] = $route_parts[2];
     $controller_name = "blog_article";
+}
+
+// Ruta: webapp/slug
+if (count($route_parts) >= 2 && $route_parts[0] === "webapp") {
+    $_GET["slug"] = $route_parts[1];
+    $controller_name = "webapp_detail";
 }
 
 // Si no se encontró una ruta dinámica, buscar en rutas estáticas
