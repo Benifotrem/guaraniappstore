@@ -196,3 +196,5 @@ function trackWebappClick(webappId) {
     font-weight: 600;
 }
 </style>
+
+<?php include INCLUDES_PATH . '/views/landing/footer.php'; ?>

@@ -61,16 +61,22 @@ define('TWO_FA_ISSUER', 'Guarani App Store');
 define('TWO_FA_ENABLED_BY_DEFAULT', false);
 
 // ================================================
-// CONFIGURACIÓN DE EMAILS
+// CONFIGURACIÓN DE EMAILS - BREVO (SENDINBLUE)
 // ================================================
-define('SMTP_ENABLED', false);                     // Cambiar a true para activar
-define('SMTP_HOST', 'smtp.tuproveedor.com');       // Servidor SMTP
+define('EMAIL_ENABLED', true);                        // Cambiar a true para activar
+define('BREVO_API_KEY', getenv('BREVO_API_KEY') ?: '');
+define('EMAIL_FROM_EMAIL', 'noreply@tudominio.com');
+define('EMAIL_FROM_NAME', 'Guarani App Store');
+
+// Legacy SMTP config (deprecado, usar Brevo)
+define('SMTP_ENABLED', false);
+define('SMTP_HOST', 'smtp.tuproveedor.com');
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'tu_email@dominio.com');   // Tu email
-define('SMTP_PASSWORD', 'tu_password_smtp');       // Contraseña email
-define('SMTP_ENCRYPTION', 'tls');                   // tls o ssl
-define('SMTP_FROM_EMAIL', 'noreply@tudominio.com');
-define('SMTP_FROM_NAME', 'Guarani App Store');
+define('SMTP_USERNAME', '');
+define('SMTP_PASSWORD', '');
+define('SMTP_ENCRYPTION', 'tls');
+define('SMTP_FROM_EMAIL', EMAIL_FROM_EMAIL);
+define('SMTP_FROM_NAME', EMAIL_FROM_NAME);
 
 // ================================================
 // CONFIGURACIÓN DEL BLOG
@@ -87,6 +93,17 @@ define('BLOG_AUTHOR_NAME', 'Tu Nombre');
 // y se pueden cambiar desde el panel de administración
 define('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions');
 define('DEEPSEEK_MODEL', 'deepseek/deepseek-r1');
+
+// ================================================
+// TELEGRAM BOT CONFIGURATION
+// ================================================
+// IMPORTANTE: Obtén tu token de @BotFather en Telegram
+define('TELEGRAM_BOT_TOKEN', getenv('TELEGRAM_BOT_TOKEN') ?: '');
+
+// ================================================
+// ADMIN EMAIL FOR NOTIFICATIONS
+// ================================================
+define('ADMIN_EMAIL', 'admin@tudominio.com');
 
 // ================================================
 // CONFIGURACIÓN DE WEBAPPS
@@ -130,11 +147,26 @@ $APP_ROUTES = [
     'home' => 'home',
     'webapps' => 'webapps',
     'webapp' => 'webapp_detail',
+    'faq' => 'faq',
     'blog' => 'blog',
     'blog/article' => 'blog_article',
     'subscribe' => 'subscribe',
     'verify-subscription' => 'verify_subscription',
     'unsubscribe' => 'unsubscribe',
+
+    // Rutas Beta Testers
+    'beta/join' => 'beta_join',
+    'beta/register' => 'beta_register',
+    'beta/dashboard' => 'beta_dashboard',
+    'beta' => 'beta',
+    'beta/login-process' => 'beta_login_process',
+    'beta/logout' => 'beta_logout',
+    'beta/recover-token' => 'beta_recover_token',
+    'beta/edit-profile' => 'beta_edit_profile',
+    'beta/unsubscribe' => 'beta_unsubscribe',
+
+    // Rutas de Feedback
+    'feedback/submit' => 'feedback_submit',
 
     // Rutas de administración
     'admin' => 'admin_login',
@@ -151,20 +183,34 @@ $APP_ROUTES = [
     'admin/blog/delete' => 'admin_blog_delete',
     'admin/blog/generate' => 'admin_blog_generate',
     'admin/subscribers' => 'admin_subscribers',
+    'admin/feedback' => 'admin_feedback',
+    'admin/feedback/view' => 'admin_feedback_view',
     'admin/settings' => 'admin_settings',
     'admin/profile' => 'admin_profile',
+    'admin/beta-testers' => 'admin_beta_testers',
+    'admin/beta-testers/approve' => 'admin_beta_testers_approve',
+    'admin/beta-testers/change-level' => 'admin_beta_testers_change_level',
 
     // APIs internas
     'ajax/blog-generate' => 'ajax_blog_generate',
     'api/webapp/view' => 'api_webapp_view',
     'api/webapp/click' => 'api_webapp_click',
     'api/blog/view' => 'api_blog_view',
+    'api/upload-screenshot' => 'api/upload_screenshot',
+
+    // API de gestión de suscriptores
+    'api/subscribers/approve' => 'api_subscribers',
+    'api/subscribers/bulk-approve' => 'api_subscribers',
+    'api/subscribers/delete' => 'api_subscribers',
+    'api/subscribers/resend-verification' => 'api_subscribers',
+    'api/subscribers/reactivate' => 'api_subscribers',
+    'api/subscribers/export' => 'api_subscribers',
 ];
 
 // ================================================
 // CONSTANTES ADICIONALES
 // ================================================
-define('APP_VERSION', '1.0.0');
+define('APP_VERSION', '2.0.0');
 define('MIN_PHP_VERSION', '7.4');
 
 // Verificar versión de PHP

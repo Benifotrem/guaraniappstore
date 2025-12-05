@@ -188,6 +188,10 @@ Formato de respuesta (JSON):
     }
 
     private function saveArticle($article, $prompt, $trends) {
+        // IMPORTANTE: Reconectar a MySQL antes de guardar
+        // La generación con IA puede tardar 1-2 minutos y la conexión se cierra
+        $this->db = Database::reconnect();
+
         $slug = generate_slug($article['title']);
 
         $existingSlug = $this->db->fetchOne("SELECT id FROM blog_articles WHERE slug = ?", [$slug]);
@@ -230,11 +234,49 @@ Formato de respuesta (JSON):
         $article = $this->db->fetchOne("SELECT * FROM blog_articles WHERE id = ?", [$articleId]);
         if (!$article) return false;
 
-        $subscribers = $this->db->fetchAll("SELECT email FROM blog_subscribers WHERE status = 'active'");
-        foreach ($subscribers as $subscriber) {
-            // TODO: Implementar envío real de email
+        // Verificar si el envío de emails está habilitado
+        if (!EMAIL_ENABLED || !BREVO_API_KEY) {
+            log_error('Email notifications disabled or Brevo API key not configured');
+            return false;
         }
-        return true;
+
+        require_once INCLUDES_PATH . '/classes/BrevoMailer.php';
+
+        $mailer = new BrevoMailer(BREVO_API_KEY, EMAIL_FROM_EMAIL, EMAIL_FROM_NAME);
+
+        $subscribers = $this->db->fetchAll(
+            "SELECT email, name FROM blog_subscribers WHERE status = 'active'"
+        );
+
+        $articleUrl = SITE_URL . '/blog/' . $article['slug'];
+        $articleExcerpt = $article['excerpt'] ?? substr(strip_tags($article['content']), 0, 200) . '...';
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($subscribers as $subscriber) {
+            $result = $mailer->sendBlogNotification(
+                $subscriber['email'],
+                $subscriber['name'],
+                $article['title'],
+                $articleExcerpt,
+                $articleUrl
+            );
+
+            if ($result['success']) {
+                $successCount++;
+            } else {
+                $failCount++;
+                log_error("Failed to send notification to {$subscriber['email']}: {$result['message']}");
+            }
+
+            // Pequeña pausa para evitar rate limiting
+            usleep(100000); // 0.1 segundos
+        }
+
+        log_info("Sent {$successCount} blog notifications successfully, {$failCount} failed");
+
+        return $successCount > 0;
     }
 
     /**
@@ -249,9 +291,12 @@ Formato de respuesta (JSON):
         try {
             $keywords = $this->extractKeywords($article['title']);
             $query = urlencode($keywords);
-            
+
+            // Solicitar 15 fotos de una página aleatoria (1-5) para mayor variedad
+            $randomPage = rand(1, 5);
+
             // Pexels API endpoint
-            $url = "https://api.pexels.com/v1/search?query={$query}&per_page=1&orientation=landscape";
+            $url = "https://api.pexels.com/v1/search?query={$query}&per_page=15&page={$randomPage}&orientation=landscape";
 
             $ch = curl_init($url);
             curl_setopt_array($ch, [
@@ -275,12 +320,14 @@ Formato de respuesta (JSON):
 
             $result = json_decode($response, true);
 
-            if (!isset($result['photos'][0]['src']['large2x'])) {
+            if (empty($result['photos'])) {
                 log_error("Pexels: No se encontraron fotos para: $keywords");
                 return null;
             }
 
-            $imageUrl = $result['photos'][0]['src']['large2x'];
+            // Seleccionar una foto ALEATORIA de los resultados
+            $randomIndex = rand(0, count($result['photos']) - 1);
+            $imageUrl = $result['photos'][$randomIndex]['src']['large2x'];
 
             // Descargar imagen
             $ch = curl_init($imageUrl);

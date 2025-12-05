@@ -8,4 +8,16 @@ public_html/assets/images/blog/*
 *.backup
 *.backup2
 *.backup3
+*.bak
+*.bak2
+*.bak3
+*.bak4
+*.save
+*.save.*
+*.broken
 .DS_Store
+vendor/
+composer.phar
+public_html/phpinfo_test.php
+public_html/test_prod.php
+test_db_direct.php

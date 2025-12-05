@@ -209,3 +209,5 @@
     }
 }
 </style>
+
+<?php include INCLUDES_PATH . '/views/landing/footer.php'; ?>
