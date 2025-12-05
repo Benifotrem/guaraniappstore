@@ -8,3 +8,28 @@ public_html/assets/images/blog/*
 *.backup2
 *.backup3
 .DS_Store
+
+# Vendor (Composer dependencies)
+vendor/
+
+# Archivos de prueba
+*test*.php
+*_test.php
+test_*.php
+phpinfo*.php
+
+# Archivos temporales y backups
+*.bak
+*.bak2
+*.bak3
+*.bak4
+*.backup
+*.backup2
+*.backup3
+*.save
+*.save.1
+*.save.2
+*.broken
+
+# Config (ya debería estar pero por seguridad)
+public_html/config.php
