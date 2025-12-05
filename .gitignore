@@ -1,4 +1,5 @@
 .env
+public_html/config.php
 logs/*.log
 public_html/uploads/*
 !public_html/uploads/.gitkeep
