@@ -5,8 +5,7 @@
  */
 
 // Verificar autenticación
-require_once INCLUDES_PATH . '/auth.php';
-check_auth();
+require_admin_auth();
 
 // Obtener ID del feedback
 $feedback_id = $_GET['id'] ?? null;
