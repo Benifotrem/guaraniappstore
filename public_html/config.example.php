@@ -1,10 +1,11 @@
 <?php
 /**
  * ================================================
- * GUARANI APP STORE - CONFIGURATION FILE
+ * GUARANI APP STORE - CONFIGURATION FILE EXAMPLE
  * ================================================
- * Archivo de configuración principal
- * Compatible con hosting compartido Hostinger
+ * Copia este archivo como config.php y configura tus credenciales
+ *
+ * IMPORTANTE: config.php NO se sube a GitHub por seguridad
  */
 
 // Prevenir acceso directo
@@ -15,18 +16,18 @@ if (!defined('APP_LOADED')) {
 // ================================================
 // CONFIGURACIÓN DE BASE DE DATOS
 // ================================================
-define('DB_HOST', 'localhost');                    // Cambiar por tu host de MySQL
-define('DB_NAME', 'u489458217_Central');           // Cambiar por tu nombre de BD
-define('DB_USER', 'u489458217_Cesar');             // Cambiar por tu usuario de BD
-define('DB_PASS', '5;vtVURM&X;d');                 // Cambiar por tu contraseña de BD
+define('DB_HOST', 'localhost');                    // Tu host de MySQL
+define('DB_NAME', 'tu_base_de_datos');             // Nombre de tu BD
+define('DB_USER', 'tu_usuario');                   // Usuario de BD
+define('DB_PASS', 'tu_contraseña_aqui');           // Contraseña de BD
 define('DB_CHARSET', 'utf8mb4');
 
 // ================================================
 // CONFIGURACIÓN GENERAL DEL SITIO
 // ================================================
 define('SITE_NAME', 'Guarani App Store');
-define('SITE_URL', 'https://guaraniappstore.com'); // Cambiar por tu dominio
-define('SITE_EMAIL', 'hola@guaraniappstore.com.py');
+define('SITE_URL', 'https://tudominio.com');       // Tu dominio
+define('SITE_EMAIL', 'hola@tudominio.com');
 
 // ================================================
 // PATHS DEL SISTEMA
@@ -46,9 +47,8 @@ define('UPLOADS_URL', SITE_URL . '/uploads');
 // ================================================
 // CONFIGURACIÓN DE SEGURIDAD
 // ================================================
-// IMPORTANTE: Cambiar esta clave por una única generada
-// Puedes generarla en: https://randomkeygen.com/
-define('SECURITY_SALT', 'bfEJriRMgAI9p9eWpE8SjXTYdne9GlvwWyeDHQRHsn8PELQZR4d6qZjVMpYb++uA');
+// IMPORTANTE: Genera tu propia clave única en: https://randomkeygen.com/
+define('SECURITY_SALT', 'GENERA_TU_PROPIA_CLAVE_ALEATORIA_AQUI');
 define('SESSION_NAME', 'guarani_admin_session');
 define('SESSION_LIFETIME', 7200); // 2 horas en segundos
 define('MAX_LOGIN_ATTEMPTS', 5);
@@ -63,13 +63,13 @@ define('TWO_FA_ENABLED_BY_DEFAULT', false);
 // ================================================
 // CONFIGURACIÓN DE EMAILS
 // ================================================
-define('SMTP_ENABLED', false);                    // Cambiar a true para activar
-define('SMTP_HOST', 'smtp.hostinger.com');        // Servidor SMTP
+define('SMTP_ENABLED', false);                     // Cambiar a true para activar
+define('SMTP_HOST', 'smtp.tuproveedor.com');       // Servidor SMTP
 define('SMTP_PORT', 587);
-define('SMTP_USERNAME', '');                       // Tu email
-define('SMTP_PASSWORD', '');                       // Contraseña email
-define('SMTP_ENCRYPTION', 'tls');                  // tls o ssl
-define('SMTP_FROM_EMAIL', 'noreply@guaraniappstore.com.py');
+define('SMTP_USERNAME', 'tu_email@dominio.com');   // Tu email
+define('SMTP_PASSWORD', 'tu_password_smtp');       // Contraseña email
+define('SMTP_ENCRYPTION', 'tls');                   // tls o ssl
+define('SMTP_FROM_EMAIL', 'noreply@tudominio.com');
 define('SMTP_FROM_NAME', 'Guarani App Store');
 
 // ================================================
@@ -78,7 +78,7 @@ define('SMTP_FROM_NAME', 'Guarani App Store');
 define('BLOG_POSTS_PER_PAGE', 12);
 define('BLOG_AUTO_GENERATION_ENABLED', true);
 define('BLOG_GENERATION_INTERVAL_DAYS', 2);
-define('BLOG_AUTHOR_NAME', 'César Ruzafa');
+define('BLOG_AUTHOR_NAME', 'Tu Nombre');
 
 // ================================================
 // CONFIGURACIÓN DE APIS EXTERNAS
@@ -104,7 +104,7 @@ date_default_timezone_set('America/Asuncion');
 // CONFIGURACIÓN DE ERRORES
 // ================================================
 // En producción cambiar a false
-define('DEBUG_MODE', true);
+define('DEBUG_MODE', false);
 
 if (DEBUG_MODE) {
     error_reporting(E_ALL);
