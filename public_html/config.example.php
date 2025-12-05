@@ -151,6 +151,11 @@ $APP_ROUTES = [
     'admin/blog/delete' => 'admin_blog_delete',
     'admin/blog/generate' => 'admin_blog_generate',
     'admin/subscribers' => 'admin_subscribers',
+    'admin/beta-testers' => 'admin_beta_testers',
+    'admin/beta-testers/approve' => 'admin_beta_testers_approve',
+    'admin/beta-testers/change-level' => 'admin_beta_testers_change_level',
+    'admin/feedback' => 'admin_feedback',
+    'admin/feedback/view' => 'admin_feedback_view',
     'admin/settings' => 'admin_settings',
     'admin/profile' => 'admin_profile',
 

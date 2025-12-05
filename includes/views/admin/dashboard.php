@@ -65,6 +65,64 @@
             </div>
         </div>
     </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value"><?php echo format_number($stats['active_beta_testers']); ?> / <?php echo format_number($stats['total_beta_testers']); ?></div>
+                <div class="stat-card-label">Beta Testers Activos</div>
+            </div>
+            <div class="stat-card-icon primary">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+        </div>
+        <a href="<?php echo get_url('admin/beta-testers'); ?>" class="text-guarani-primary">
+            Ver todos →
+        </a>
+        <?php if ($stats['pending_beta_testers'] > 0): ?>
+        <div class="mt-2 text-warning">
+            <?php echo $stats['pending_beta_testers']; ?> pendientes de aprobación
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value"><?php echo format_number($stats['total_feedback']); ?></div>
+                <div class="stat-card-label">Feedback Recibido</div>
+            </div>
+            <div class="stat-card-icon info">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+            </div>
+        </div>
+        <a href="<?php echo get_url('admin/feedback'); ?>" class="text-guarani-primary">
+            Ver todos →
+        </a>
+        <?php if ($stats['pending_feedback'] > 0): ?>
+        <div class="mt-2 text-error">
+            <?php echo $stats['pending_feedback']; ?> pendientes de revisar
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div>
+                <div class="stat-card-value"><?php echo format_number($stats['bugs_reported']); ?> 🐛 / <?php echo format_number($stats['features_requested']); ?> ✨</div>
+                <div class="stat-card-label">Bugs / Features</div>
+            </div>
+            <div class="stat-card-icon warning">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Quick Actions -->

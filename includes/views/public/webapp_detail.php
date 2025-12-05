@@ -125,6 +125,9 @@
     </div>
 </section>
 
+<!-- Widget de Feedback para Beta Testers -->
+<?php include INCLUDES_PATH . '/views/feedback/widget.php'; ?>
+
 <script>
 function trackWebappClick(webappId) {
     fetch('<?php echo get_url("api/webapp/click"); ?>', {

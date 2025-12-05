@@ -9,6 +9,9 @@ public_html/assets/images/blog/*
 *.backup3
 .DS_Store
 
+# Scripts temporales
+create_pr.sh
+
 # Vendor (Composer dependencies)
 vendor/
 
