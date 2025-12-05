@@ -14,6 +14,7 @@ public_html/assets/images/blog/*
 *.bak4
 *.save
 *.save.*
+*.broken
 .DS_Store
 vendor/
 composer.phar
