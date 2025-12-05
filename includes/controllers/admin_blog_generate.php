@@ -153,10 +153,7 @@ document.getElementById('generate-btn').addEventListener('click', function() {
         const step = steps[currentStep];
 
         // Actualizar texto
-        const progressText = document.getElementById('progress-text');
-        if (progressText) {
-            progressText.textContent = step.text;
-        }
+        document.getElementById('progress-text').textContent = step.text;
 
         // Marcar paso como activo
         const stepElements = document.querySelectorAll('.progress-step');
@@ -173,10 +170,7 @@ document.getElementById('generate-btn').addEventListener('click', function() {
         // Actualizar barra de progreso
         elapsedDuration += (currentStep > 0 ? steps[currentStep - 1].duration : 0);
         const progressPercent = (elapsedDuration / totalDuration) * 100;
-        const progressBar = document.getElementById('progress-bar');
-        if (progressBar) {
-            progressBar.style.width = progressPercent + '%';
-        }
+        document.getElementById('progress-bar').style.width = progressPercent + '%';
 
         currentStep++;
 
@@ -197,24 +191,12 @@ document.getElementById('generate-btn').addEventListener('click', function() {
         },
         body: 'csrf_token=<?php echo generate_csrf_token(); ?>'
     })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log('Response data:', data);
-
         if (data.success) {
             // Completar barra de progreso
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-
-            if (progressBar) {
-                progressBar.style.width = '100%';
-            }
-            if (progressText) {
-                progressText.textContent = '¡Artículo generado exitosamente!';
-            }
+            document.getElementById('progress-bar').style.width = '100%';
+            document.getElementById('progress-text').textContent = '¡Artículo generado exitosamente!';
 
             // Marcar todos los pasos como completados
             document.querySelectorAll('.progress-step').forEach(el => {
@@ -223,45 +205,24 @@ document.getElementById('generate-btn').addEventListener('click', function() {
             });
 
             // Redirigir después de 1 segundo
-            console.log('Redirigiendo a:', data.redirect);
             setTimeout(() => {
                 window.location.href = data.redirect;
             }, 1000);
         } else {
             // Mostrar error
-            const errorMsg = document.getElementById('error-message');
-            const progressContainer = document.getElementById('progress-container');
-            const buttonContainer = document.getElementById('generate-button-container');
-
-            if (errorMsg) {
-                errorMsg.textContent = 'Error: ' + (data.error || 'Error desconocido');
-                errorMsg.style.display = 'block';
-            }
-            if (progressContainer) {
-                progressContainer.style.display = 'none';
-            }
-            if (buttonContainer) {
-                buttonContainer.style.display = 'block';
-            }
+            document.getElementById('error-message').textContent = 'Error: ' + (data.error || 'Error desconocido');
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('progress-container').style.display = 'none';
+            document.getElementById('generate-button-container').style.display = 'block';
             btn.disabled = false;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        const errorMsg = document.getElementById('error-message');
-        const progressContainer = document.getElementById('progress-container');
-        const buttonContainer = document.getElementById('generate-button-container');
-
-        if (errorMsg) {
-            errorMsg.textContent = 'Error de conexión: ' + error.message;
-            errorMsg.style.display = 'block';
-        }
-        if (progressContainer) {
-            progressContainer.style.display = 'none';
-        }
-        if (buttonContainer) {
-            buttonContainer.style.display = 'block';
-        }
+        document.getElementById('error-message').textContent = 'Error de conexión: ' + error.message;
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('progress-container').style.display = 'none';
+        document.getElementById('generate-button-container').style.display = 'block';
         btn.disabled = false;
     });
 });

@@ -28,13 +28,5 @@ $db->update('blog_subscribers', [
     'verification_token' => null
 ], 'id = ?', [$subscriber['id']]);
 
-// Enviar email de bienvenida
-if (EMAIL_ENABLED && BREVO_API_KEY) {
-    require_once INCLUDES_PATH . '/classes/BrevoMailer.php';
-
-    $mailer = new BrevoMailer(BREVO_API_KEY, EMAIL_FROM_EMAIL, EMAIL_FROM_NAME);
-    $mailer->sendWelcomeEmail($subscriber['email'], $subscriber['name']);
-}
-
 $_SESSION['success'] = '¡Gracias! Tu suscripción ha sido confirmada. Recibirás nuestros artículos por email.';
 redirect(get_url('blog'));

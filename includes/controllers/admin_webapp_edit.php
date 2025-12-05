@@ -58,51 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $form_data['tags'] = json_encode($tags);
         $form_data['tech_stack'] = json_encode($tech_stack);
-
-        // URLs de imágenes - Descargar y re-hostear automáticamente
-        $logo_url = sanitize_input($_POST['logo_url'] ?? '');
-        $cover_url = sanitize_input($_POST['cover_image_url'] ?? '');
-
-        // Solo re-hostear si la URL cambió
-        if (!empty($logo_url) && $logo_url !== $webapp['logo_url']) {
-            $rehosted_logo = download_and_rehost_image($logo_url, 'webapps/logos');
-            $form_data['logo_url'] = $rehosted_logo ?? $logo_url;
-        } else {
-            $form_data['logo_url'] = $logo_url;
-        }
-
-        if (!empty($cover_url) && $cover_url !== $webapp['cover_image_url']) {
-            $rehosted_cover = download_and_rehost_image($cover_url, 'webapps/covers');
-            $form_data['cover_image_url'] = $rehosted_cover ?? $cover_url;
-        } else {
-            $form_data['cover_image_url'] = $cover_url;
-        }
-
-        // Procesar screenshots (múltiples URLs, una por línea)
-        $screenshots_input = trim($_POST['screenshots'] ?? '');
-        $screenshots_array = [];
-        if (!empty($screenshots_input)) {
-            $screenshot_urls = array_filter(array_map('trim', explode("\n", $screenshots_input)));
-
-            // Comparar con screenshots actuales para solo descargar los nuevos
-            $existing_screenshots = json_decode($webapp['screenshots'] ?? '[]', true);
-            $existing_screenshots = is_array($existing_screenshots) ? $existing_screenshots : [];
-
-            foreach ($screenshot_urls as $screenshot_url) {
-                // Si ya está en la lista de existentes y es una URL local, mantenerla
-                if (in_array($screenshot_url, $existing_screenshots) &&
-                    (strpos($screenshot_url, SITE_URL) === 0 || strpos($screenshot_url, ASSETS_URL) === 0)) {
-                    $screenshots_array[] = $screenshot_url;
-                } else {
-                    // Descargar y re-hostear screenshot nueva o externa
-                    $rehosted_screenshot = download_and_rehost_image($screenshot_url, 'webapps/screenshots');
-                    if ($rehosted_screenshot) {
-                        $screenshots_array[] = $rehosted_screenshot;
-                    }
-                }
-            }
-        }
-        $form_data['screenshots'] = json_encode($screenshots_array);
+        $form_data['logo_url'] = sanitize_input($_POST['logo_url'] ?? '');
+        $form_data['cover_image_url'] = sanitize_input($_POST['cover_image_url'] ?? '');
 
         if (empty($errors)) {
             if ($form_data['status'] === 'published' && empty($webapp['published_at'])) {
