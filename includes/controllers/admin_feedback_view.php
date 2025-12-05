@@ -7,6 +7,8 @@
 // Verificar autenticación
 require_admin_auth();
 
+$db = Database::getInstance();
+
 // Obtener ID del feedback
 $feedback_id = $_GET['id'] ?? null;
 
