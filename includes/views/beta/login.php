@@ -2,10 +2,13 @@
 
 <style>
     .login-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-primary);
         color: white;
         padding: 3rem 0 2rem;
         text-align: center;
+    }
+    .login-hero h1 {
+        color: white !important;
     }
     .login-container {
         max-width: 500px;
@@ -47,11 +50,11 @@
     }
     .form-group input:focus {
         outline: none;
-        border-color: #667eea;
+        border-color: var(--guarani-primary);
     }
     .btn-login {
         width: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-primary);
         color: white;
         border: none;
         padding: 1rem;
@@ -71,7 +74,7 @@
         border-top: 1px solid #e2e8f0;
     }
     .login-links a {
-        color: #667eea;
+        color: var(--guarani-primary);
         text-decoration: none;
         font-weight: 500;
     }
@@ -156,7 +159,7 @@
 
 
             <div style="text-align: right; margin-bottom: 1rem;">
-                <a href="<?php echo get_url('beta/recover-token'); ?>" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">¿Olvidaste tu token?</a>
+                <a href="<?php echo get_url('beta/recover-token'); ?>" style="font-size: 0.9rem;">¿Olvidaste tu token?</a>
             </div>
 
             <button type="submit" class="btn-login">

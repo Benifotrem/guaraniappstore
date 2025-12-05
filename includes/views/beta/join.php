@@ -6,7 +6,7 @@ include INCLUDES_PATH . '/views/landing/header.php';
 <style>
 /* Beta Landing Page Styles */
 .beta-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     padding: 6rem 0 4rem;
     position: relative;
     overflow: hidden;
@@ -140,8 +140,8 @@ include INCLUDES_PATH . '/views/landing/header.php';
 .form-select:focus,
 .form-textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--guarani-primary);
+    box-shadow: 0 0 0 3px hsla(84, 40%, 35%, 0.1);
 }
 
 .form-textarea {
@@ -158,7 +158,7 @@ include INCLUDES_PATH . '/views/landing/header.php';
 .btn-beta-submit {
     width: 100%;
     padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--gradient-primary);
     color: white;
     border: none;
     border-radius: 8px;

@@ -45,7 +45,6 @@ $feedback_reports = $db->fetchAll("
         type,
         title,
         description,
-        priority,
         status,
         user_name,
         user_email,
