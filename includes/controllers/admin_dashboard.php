@@ -14,6 +14,13 @@ $stats = [
     'total_subscribers' => $db->fetchColumn("SELECT COUNT(*) FROM blog_subscribers WHERE status = 'active'"),
     'total_webapp_views' => $db->fetchColumn("SELECT SUM(view_count) FROM webapps") ?? 0,
     'total_article_views' => $db->fetchColumn("SELECT SUM(view_count) FROM blog_articles") ?? 0,
+    'total_beta_testers' => $db->fetchColumn("SELECT COUNT(*) FROM beta_testers") ?? 0,
+    'active_beta_testers' => $db->fetchColumn("SELECT COUNT(*) FROM beta_testers WHERE status = 'active'") ?? 0,
+    'pending_beta_testers' => $db->fetchColumn("SELECT COUNT(*) FROM beta_testers WHERE status = 'pending'") ?? 0,
+    'total_feedback' => $db->fetchColumn("SELECT COUNT(*) FROM feedback_reports") ?? 0,
+    'pending_feedback' => $db->fetchColumn("SELECT COUNT(*) FROM feedback_reports WHERE status = 'new'") ?? 0,
+    'bugs_reported' => $db->fetchColumn("SELECT COUNT(*) FROM feedback_reports WHERE type = 'bug'") ?? 0,
+    'features_requested' => $db->fetchColumn("SELECT COUNT(*) FROM feedback_reports WHERE type = 'feature'") ?? 0,
 ];
 
 // Webapps recientes
