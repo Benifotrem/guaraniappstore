@@ -7,6 +7,9 @@
         padding: 3rem 0 2rem;
         text-align: center;
     }
+    .login-hero h1 {
+        color: white !important;
+    }
     .login-container {
         max-width: 500px;
         margin: 3rem auto;
