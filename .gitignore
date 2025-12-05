@@ -8,3 +8,4 @@ public_html/assets/images/blog/*
 *.backup2
 *.backup3
 .DS_Store
+create_pr.sh
