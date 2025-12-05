@@ -158,7 +158,7 @@
     <div class="faq-intro">
         <h3>🌿 ¿Qué significa ser Beta Tester en Guarani App Store?</h3>
         <p>
-            ¡Che ru! (¡Hola amigo!) Ser <strong>Beta Tester</strong> en Guarani App Store no es solo "probar aplicaciones antes que nadie".
+            ¡Che angirū! (¡Hola amigo!) Ser <strong>Beta Tester</strong> en Guarani App Store no es solo "probar aplicaciones antes que nadie".
             Es ser <span class="guarani-word">ñe'ẽhára</span> (guardián) de la calidad, un colaborador clave en la construcción de herramientas
             digitales pensadas para PYMEs y emprendedores.
         </p>
@@ -450,7 +450,7 @@
         <h3>¿Listo para ser parte de la comunidad?</h3>
         <p style="font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.95;">
             Sumate al programa, <span style="font-style: italic;">pytyvõ</span> (ayudá) a construir mejores herramientas,
-            y disfrutá de acceso gratuito para siempre. <strong>Jajapoja'o!</strong> (¡Vamos juntos!)
+            y disfrutá de acceso gratuito para siempre. <strong>Jaha oñondive!</strong> (¡Vamos juntos!)
         </p>
         <a href="<?php echo get_url('beta/join'); ?>" class="faq-cta-button">
             🚀 Quiero ser Beta Tester
