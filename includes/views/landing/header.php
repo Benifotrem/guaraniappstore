@@ -8,8 +8,8 @@
     <title><?php echo $page_title ?? 'Guarani App Store - Apps en Producción'; ?></title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/styles.css?v=<?php echo filemtime(PUBLIC_PATH . '/assets/css/styles.css'); ?>">
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/landing.css?v=<?php echo filemtime(PUBLIC_PATH . '/assets/css/landing.css'); ?>">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/styles.css">
+    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/landing.css">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?php echo ASSETS_URL; ?>/images/favicon.png">
@@ -51,14 +51,13 @@
                 </div>
 
                 <!-- Navigation -->
-        <nav class="main-nav">
-            <a href="<?php echo get_url(); ?>" class="nav-link">Inicio</a>
-            <a href="<?php echo get_url('webapps'); ?>" class="nav-link">Apps</a>
-            <a href="<?php echo get_url('blog'); ?>" class="nav-link">Blog</a>
-            <a href="<?php echo get_url('beta'); ?>" class="nav-link nav-link-beta">🚀 Beta Tester</a>
-            <a href="<?php echo get_url('faq'); ?>" class="nav-link">FAQ</a>
-            <a href="#contacto" class="nav-link">Contacto</a>
-        </nav>
+                <nav class="main-nav">
+                    <a href="<?php echo get_url(); ?>" class="nav-link">Inicio</a>
+                    <a href="<?php echo get_url('webapps'); ?>" class="nav-link">Apps</a>
+                    <a href="<?php echo get_url('blog'); ?>" class="nav-link">Blog</a>
+                    <a href="#contacto" class="nav-link">Contacto</a>
+                </nav>
+
                 <!-- Mobile Menu Toggle -->
                 <button class="mobile-menu-toggle" id="mobile-menu-toggle">
                     <span></span>
@@ -68,13 +67,11 @@
             </div>
         </div>
 
-                <!-- Mobile Menu -->
+        <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobile-menu">
             <a href="<?php echo get_url(); ?>" class="mobile-nav-link">Inicio</a>
             <a href="<?php echo get_url('webapps'); ?>" class="mobile-nav-link">Apps</a>
             <a href="<?php echo get_url('blog'); ?>" class="mobile-nav-link">Blog</a>
-            <a href="<?php echo get_url('beta'); ?>" class="mobile-nav-link">🚀 Beta Tester</a>
-            <a href="<?php echo get_url('faq'); ?>" class="mobile-nav-link">FAQ</a>
             <a href="#contacto" class="mobile-nav-link">Contacto</a>
         </div>
     </header>

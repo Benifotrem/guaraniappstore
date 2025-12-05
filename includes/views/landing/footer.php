@@ -6,7 +6,7 @@
                 <div class="footer-column">
                     <h3 class="footer-title">Guarani App Store</h3>
                     <p class="footer-text">
-                        Showcase de aplicaciones web en fase Beta o producción. Descubre nuestras soluciones
+                        Showcase de aplicaciones web en producción. Descubre nuestras soluciones
                         y mantente al día con las últimas tendencias en IA para PYMEs.
                     </p>
                     <div class="social-links">
