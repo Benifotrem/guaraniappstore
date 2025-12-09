@@ -127,10 +127,10 @@
                 <?php foreach ($recent_beta_signups as $item): ?>
                     <div class="recent-item">
                         <div class="recent-avatar">
-                            <?php echo strtoupper(substr($item['full_name'], 0, 1)); ?>
+                            <?php echo strtoupper(substr($item['name'], 0, 1)); ?>
                         </div>
                         <div class="recent-info">
-                            <div class="recent-title"><?php echo e($item['full_name']); ?></div>
+                            <div class="recent-title"><?php echo e($item['name']); ?></div>
                             <div class="recent-meta">
                                 <?php echo format_date_es($item['created_at'], 'short'); ?>
                                 · <span class="status-<?php echo e($item['status']); ?>"><?php echo e($item['status']); ?></span>

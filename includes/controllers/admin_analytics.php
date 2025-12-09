@@ -121,7 +121,7 @@ $recent_feedback = $db->fetchAll("
 
 $recent_beta_signups = $db->fetchAll("
     SELECT
-        full_name,
+        name,
         email,
         status,
         created_at
