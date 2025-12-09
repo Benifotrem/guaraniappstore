@@ -71,14 +71,7 @@ $stats = $db->fetchOne("
 $webapps = $db->fetchAll("SELECT id, title FROM webapps ORDER BY title");
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Feedback - Admin Panel</title>
-    <link rel="stylesheet" href="<?php echo ASSETS_URL; ?>/css/admin.css">
-    <style>
+<style>
         .feedback-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -228,11 +221,12 @@ $webapps = $db->fetchAll("SELECT id, title FROM webapps ORDER BY title");
         .tester-silver { background: #e5e7eb; color: #374151; }
         .tester-gold { background: #fef3c7; color: #92400e; }
         .tester-platinum { background: #e0e7ff; color: #3730a3; }
-    </style>
-</head>
-<body>
-    <div class="admin-container">
-        <h1>Gestión de Feedback</h1>
+</style>
+
+<div class="admin-content">
+    <div class="admin-header">
+        <h1>📊 Gestión de Feedback</h1>
+    </div>
 
         <!-- Estadísticas -->
         <div class="feedback-stats">
@@ -400,6 +394,4 @@ $webapps = $db->fetchAll("SELECT id, title FROM webapps ORDER BY title");
                 </tbody>
             </table>
         </div>
-    </div>
-</body>
-</html>
+</div>
