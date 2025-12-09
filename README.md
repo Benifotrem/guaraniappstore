@@ -6,6 +6,68 @@ Plataforma web para showcase de aplicaciones en fase Beta y producción, con sis
 ![PHP](https://img.shields.io/badge/PHP-8.1+-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
+> 🎯 **Portfolio Project** - Plataforma completa desarrollada para demostrar dominio del stack PHP/MySQL/JavaScript con integraciones avanzadas, arquitectura MVC limpia y dashboard analytics profesional con Chart.js.
+
+## 🎨 Portfolio Showcase
+
+### Live Demo
+🔗 **[https://guaraniappstore.com](https://guaraniappstore.com)**
+
+### Key Highlights para Clientes Potenciales
+
+**📊 Dashboard Analytics Avanzado**
+- Visualizaciones interactivas con Chart.js 4.4.0
+- Métricas en tiempo real con comparación de períodos
+- 4 tipos de gráficos: líneas, barras, dona y barras horizontales
+- CTR (Click-Through Rate) calculado automáticamente
+- Filtros por período (7, 30, 90 días)
+
+**💬 Sistema de Feedback Completo**
+- Formulario widget embebido en páginas públicas
+- Panel admin con filtros avanzados (tipo, estado, webapp)
+- Estadísticas de feedback por tipo
+- Sistema de estados (new, reviewing, accepted, implemented, rejected)
+- Integración con beta testers para tracking de contribuciones
+
+**⚡ Programa Beta Testers Gamificado**
+- Sistema de niveles automático (Bronze → Silver → Gold → Platinum)
+- Contador de bugs reportados y sugerencias aceptadas
+- Dashboard personalizado con progreso
+- Integración Telegram Bot para notificaciones
+- Leaderboard público con ranking
+
+**🎨 Diseño Multicultural**
+- Sistema de colores Guaraní (verde oliva) con CSS Variables
+- FAQ con expresiones en guaraní y español coloquial
+- Responsive design con móviles-first approach
+- Dark mode ready con CSS custom properties
+
+**🔧 Stack Técnico Demostrado**
+- **Backend**: PHP 8.2+ con arquitectura MVC limpia
+- **Database**: MySQL con queries optimizadas y prepared statements
+- **Frontend**: Vanilla JavaScript, Chart.js, CSS Grid/Flexbox
+- **APIs**: Brevo (emails transaccionales), Telegram Bot API
+- **Security**: PDO prepared statements, CSRF tokens, password hashing
+- **Architecture**: Singleton pattern, Router custom, MVC separation
+
+### Screenshots Disponibles
+
+Ver [`docs/SCREENSHOTS.md`](docs/SCREENSHOTS.md) para capturas profesionales del admin panel, analytics dashboard, sistema de feedback y páginas públicas.
+
+### Casos de Uso Reales
+
+- ✅ Gestión de comunidad beta testers con gamificación
+- ✅ Analytics dashboard para toma de decisiones basada en datos
+- ✅ Sistema de feedback para product development
+- ✅ Blog para content marketing y SEO
+- ✅ Sistema de suscripciones con email automation
+
+### Documentación Técnica Completa
+
+Ver [`PORTFOLIO.md`](PORTFOLIO.md) para análisis técnico detallado, decisiones de arquitectura y desafíos resueltos.
+
+---
+
 ## ✨ Características Principales
 
 ### 🚀 Programa Beta Tester
