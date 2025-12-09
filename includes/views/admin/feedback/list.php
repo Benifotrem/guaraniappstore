@@ -35,7 +35,7 @@ $feedbacks = $db->fetchAll("
     SELECT
         fr.*,
         w.title as webapp_title,
-        w.url as webapp_url,
+        w.slug as webapp_slug,
         bt.name as tester_name,
         bt.email as tester_email,
         bt.contribution_level
@@ -337,9 +337,13 @@ $webapps = $db->fetchAll("SELECT id, title FROM webapps ORDER BY title");
                                     <strong><?php echo htmlspecialchars($feedback['title']); ?></strong>
                                 </td>
                                 <td>
-                                    <a href="<?php echo htmlspecialchars($feedback['webapp_url']); ?>" target="_blank">
-                                        <?php echo htmlspecialchars($feedback['webapp_title']); ?>
-                                    </a>
+                                    <?php if ($feedback['webapp_slug']): ?>
+                                        <a href="<?php echo get_url('webapp/' . $feedback['webapp_slug']); ?>" target="_blank">
+                                            <?php echo htmlspecialchars($feedback['webapp_title']); ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted">General</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($feedback['tester_name']): ?>

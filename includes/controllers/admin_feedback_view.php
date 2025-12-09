@@ -70,7 +70,6 @@ $feedback = $db->fetchOne("
     SELECT
         fr.*,
         w.title as webapp_title,
-        w.url as webapp_url,
         w.slug as webapp_slug,
         bt.name as tester_name,
         bt.email as tester_email,

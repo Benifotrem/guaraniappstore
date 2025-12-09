@@ -267,14 +267,20 @@
                     <div class="feedback-section">
                         <h3>Aplicación</h3>
                         <div>
-                            <a href="<?php echo get_url('webapp/' . $feedback['webapp_slug']); ?>" target="_blank" style="font-size: 16px; font-weight: 600;">
-                                <?php echo htmlspecialchars($feedback['webapp_title']); ?> →
-                            </a>
-                            <div style="margin-top: 4px;">
-                                <a href="<?php echo htmlspecialchars($feedback['webapp_url']); ?>" target="_blank" style="font-size: 12px; color: #6b7280;">
-                                    <?php echo htmlspecialchars($feedback['webapp_url']); ?>
+                            <?php if ($feedback['webapp_slug']): ?>
+                                <a href="<?php echo get_url('webapp/' . $feedback['webapp_slug']); ?>" target="_blank" style="font-size: 16px; font-weight: 600;">
+                                    <?php echo htmlspecialchars($feedback['webapp_title']); ?> →
                                 </a>
-                            </div>
+                                <div style="margin-top: 4px;">
+                                    <span style="font-size: 12px; color: #6b7280;">
+                                        /webapp/<?php echo htmlspecialchars($feedback['webapp_slug']); ?>
+                                    </span>
+                                </div>
+                            <?php else: ?>
+                                <span style="font-size: 16px; font-weight: 600; color: #6b7280;">
+                                    Feedback General
+                                </span>
+                            <?php endif; ?>
                         </div>
                     </div>
 
