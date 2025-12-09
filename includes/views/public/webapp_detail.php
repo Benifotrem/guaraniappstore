@@ -61,11 +61,24 @@
             <?php endif; ?>
 
             <!-- Screenshots -->
-            <?php if (!empty($webapp['screenshots'])): ?>
+            <?php
+            // Filtrar screenshots que existen físicamente
+            $valid_screenshots = [];
+            if (!empty($webapp['screenshots'])) {
+                foreach ($webapp['screenshots'] as $screenshot) {
+                    // Convertir URL a path del servidor
+                    $path = str_replace('https://guaraniappstore.com/', PUBLIC_PATH . '/', $screenshot);
+                    if (file_exists($path)) {
+                        $valid_screenshots[] = $screenshot;
+                    }
+                }
+            }
+            ?>
+            <?php if (!empty($valid_screenshots)): ?>
                 <div class="webapp-detail-screenshots card mb-4">
                     <h2>Capturas de Pantalla</h2>
                     <div class="screenshots-grid mt-3">
-                        <?php foreach ($webapp['screenshots'] as $screenshot): ?>
+                        <?php foreach ($valid_screenshots as $screenshot): ?>
                             <img src="<?php echo e($screenshot); ?>"
                                  alt="Screenshot"
                                  class="screenshot-img">
