@@ -2,7 +2,7 @@
 
 <style>
     .faq-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-primary);
         color: white;
         padding: 4rem 0 3rem;
         text-align: center;
@@ -20,31 +20,36 @@
         margin-bottom: 3rem;
     }
     .faq-section h2 {
-        color: #667eea;
+        color: var(--guarani-primary);
         font-size: 1.8rem;
         margin-bottom: 1.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 3px solid #667eea;
+        border-bottom: 3px solid var(--guarani-primary);
     }
     .faq-item {
         background: white;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .faq-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
     .faq-question {
         font-size: 1.2rem;
         font-weight: 600;
-        color: #2d3748;
+        color: var(--foreground);
         margin-bottom: 1rem;
         display: flex;
         align-items: start;
     }
     .faq-question::before {
         content: "Q:";
-        background: #667eea;
+        background: var(--guarani-primary);
         color: white;
         border-radius: 6px;
         padding: 0.25rem 0.5rem;
@@ -65,8 +70,8 @@
         margin-bottom: 0.5rem;
     }
     .faq-code {
-        background: #f7fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--guarani-light);
+        border: 1px solid var(--border);
         border-radius: 6px;
         padding: 1rem;
         font-family: monospace;
@@ -75,13 +80,14 @@
         overflow-x: auto;
     }
     .faq-highlight {
-        background: #fef9c3;
+        background: var(--guarani-light);
+        color: var(--guarani-dark);
         padding: 0.2rem 0.4rem;
         border-radius: 4px;
-        font-weight: 500;
+        font-weight: 600;
     }
     .faq-cta {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-primary);
         color: white;
         padding: 2.5rem;
         border-radius: 12px;
@@ -95,7 +101,7 @@
     .faq-cta-button {
         display: inline-block;
         background: white;
-        color: #667eea;
+        color: var(--guarani-primary);
         padding: 1rem 2rem;
         border-radius: 8px;
         text-decoration: none;
