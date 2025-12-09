@@ -852,3 +852,16 @@ a:hover {
         width: 100%;
     }
 }
+
+/* ================================================
+   WEBAPP DETAIL - LOGO SIZING FIX
+   ================================================ */
+.webapp-detail-logo {
+    width: 100px !important;
+    height: 100px !important;
+    max-width: 100px !important;
+    max-height: 100px !important;
+    object-fit: contain !important;
+    display: block;
+    flex-shrink: 0;
+}
