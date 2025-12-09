@@ -141,6 +141,7 @@ $APP_ROUTES = [
     'admin/login' => 'admin_login',
     'admin/logout' => 'admin_logout',
     'admin/dashboard' => 'admin_dashboard',
+    'admin/analytics' => 'admin_analytics',
     'admin/webapps' => 'admin_webapps',
     'admin/webapps/create' => 'admin_webapp_create',
     'admin/webapps/edit' => 'admin_webapp_edit',
