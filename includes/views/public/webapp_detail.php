@@ -142,7 +142,11 @@ function trackWebappClick(webappId) {
 .webapp-detail-logo {
     width: 100px;
     height: 100px;
+    max-width: 100px;
+    max-height: 100px;
     object-fit: contain;
+    display: block;
+    flex-shrink: 0;
 }
 .webapp-detail-title {
     font-size: 2.5rem;
