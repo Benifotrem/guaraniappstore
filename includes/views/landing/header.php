@@ -57,7 +57,7 @@
             <a href="<?php echo get_url('blog'); ?>" class="nav-link">Blog</a>
             <a href="<?php echo get_url('beta'); ?>" class="nav-link nav-link-beta">🚀 Beta Tester</a>
             <a href="<?php echo get_url('faq'); ?>" class="nav-link">FAQ</a>
-            <a href="#contacto" class="nav-link">Contacto</a>
+            <a href="https://t.me/guaraniappstore_bot" target="_blank" class="nav-link">💬 Contacto</a>
         </nav>
                 <!-- Mobile Menu Toggle -->
                 <button class="mobile-menu-toggle" id="mobile-menu-toggle">
@@ -75,6 +75,6 @@
             <a href="<?php echo get_url('blog'); ?>" class="mobile-nav-link">Blog</a>
             <a href="<?php echo get_url('beta'); ?>" class="mobile-nav-link">🚀 Beta Tester</a>
             <a href="<?php echo get_url('faq'); ?>" class="mobile-nav-link">FAQ</a>
-            <a href="#contacto" class="mobile-nav-link">Contacto</a>
+            <a href="https://t.me/guaraniappstore_bot" target="_blank" class="mobile-nav-link">💬 Contacto</a>
         </div>
     </header>
