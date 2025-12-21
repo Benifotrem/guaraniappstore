@@ -1,147 +1,316 @@
 <?php include INCLUDES_PATH . '/views/landing/header.php'; ?>
 
 <style>
-    .faq-hero {
-        background: var(--gradient-primary);
-        color: white;
-        padding: 4rem 0 3rem;
-        text-align: center;
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .faq-hero {
+        background: linear-gradient(-45deg, #00a884, #008069, #00bfa5, #00695c);
+        background-size: 400% 400%;
+        animation: gradientFlow 15s ease infinite;
+        color: white;
+        padding: 5rem 0 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .faq-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></svg>');
+        opacity: 0.3;
+        animation: gradientFlow 20s ease infinite;
+    }
+
     .faq-hero h1 {
-        font-size: 2.5rem;
+        font-size: 3rem;
         margin-bottom: 1rem;
         color: white;
+        font-weight: 800;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 20px rgba(0,0,0,0.2);
     }
+
     .faq-hero-subtitle {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         opacity: 0.95;
         max-width: 700px;
         margin: 0 auto;
         line-height: 1.6;
+        position: relative;
+        z-index: 1;
     }
+
     .faq-container {
         max-width: 900px;
         margin: 3rem auto;
         padding: 0 2rem;
     }
+
     .faq-intro {
-        background: var(--guarani-light);
-        border-left: 4px solid var(--guarani-primary);
-        padding: 2rem;
-        border-radius: 12px;
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: none;
+        border-left: 5px solid #00a884;
+        padding: 2.5rem;
+        border-radius: 16px;
         margin-bottom: 3rem;
+        box-shadow: 0 4px 20px rgba(0,168,132,0.1);
+        animation: fadeInUp 0.6s ease-out;
     }
+
     .faq-intro h3 {
-        color: var(--guarani-primary);
-        font-size: 1.5rem;
+        color: #00695c;
+        font-size: 1.6rem;
         margin-bottom: 1rem;
+        font-weight: 700;
     }
+
     .faq-intro p {
-        color: var(--guarani-dark);
-        line-height: 1.7;
+        color: #1e4d2b;
+        line-height: 1.8;
         margin-bottom: 0.75rem;
     }
+
     .guarani-word {
-        color: var(--guarani-primary);
+        color: #00a884;
         font-weight: 700;
         font-style: italic;
     }
+
     .faq-section {
         margin-bottom: 3rem;
+        animation: fadeInUp 0.6s ease-out;
     }
+
     .faq-section h2 {
-        color: var(--guarani-primary);
-        font-size: 1.8rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 3px solid var(--guarani-primary);
+        color: #00695c;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        padding-bottom: 0.75rem;
+        border-bottom: none;
+        position: relative;
+        font-weight: 700;
     }
+
+    .faq-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #00a884, #00bfa5);
+        border-radius: 2px;
+    }
+
     .faq-item {
         background: white;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 1.5rem;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        padding: 2rem;
         margin-bottom: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
+
+    .faq-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #00a884, #00bfa5, #4ade80);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+        transform-origin: left;
+    }
+
     .faq-item:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        border-color: var(--guarani-primary-light);
+        box-shadow: 0 8px 30px rgba(0,168,132,0.15);
+        border-color: #00a88420;
+        transform: translateY(-4px);
     }
+
+    .faq-item:hover::before {
+        transform: scaleX(1);
+    }
+
     .faq-question {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #2d3748;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
         margin-bottom: 1rem;
         display: flex;
         align-items: start;
+        gap: 1rem;
     }
+
     .faq-question::before {
-        content: "Q:";
-        background: var(--guarani-primary);
+        content: "Q";
+        background: linear-gradient(135deg, #00a884, #008069);
         color: white;
-        border-radius: 6px;
-        padding: 0.25rem 0.5rem;
-        margin-right: 0.75rem;
-        font-size: 0.9rem;
+        border-radius: 8px;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.85rem;
         flex-shrink: 0;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(0,168,132,0.3);
     }
+
     .faq-answer {
-        color: #4a5568;
-        line-height: 1.7;
-        padding-left: 2.5rem;
+        color: #475569;
+        line-height: 1.8;
+        padding-left: 3rem;
+        font-size: 1.05rem;
     }
+
     .faq-answer ul, .faq-answer ol {
         margin: 1rem 0;
         padding-left: 1.5rem;
     }
+
     .faq-answer li {
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
     }
+
+    .faq-answer strong {
+        color: #1e293b;
+        font-weight: 600;
+    }
+
+    .faq-answer a {
+        color: #00a884;
+        text-decoration: none;
+        font-weight: 600;
+        border-bottom: 2px solid transparent;
+        transition: border-color 0.3s ease;
+    }
+
+    .faq-answer a:hover {
+        border-bottom-color: #00a884;
+    }
+
     .faq-code {
-        background: #f7fafc;
-        border: 1px solid var(--border);
-        border-radius: 6px;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
         padding: 1rem;
-        font-family: monospace;
+        font-family: 'Courier New', monospace;
         font-size: 0.9rem;
         margin: 1rem 0;
         overflow-x: auto;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
+
     .faq-highlight {
-        background: #fef9c3;
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
-        font-weight: 500;
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        color: #92400e;
     }
+
     .faq-cta {
-        background: var(--gradient-primary);
+        background: linear-gradient(-45deg, #00a884, #008069, #00bfa5, #00695c);
+        background-size: 400% 400%;
+        animation: gradientFlow 15s ease infinite;
         color: white;
-        padding: 2.5rem;
-        border-radius: 12px;
+        padding: 3.5rem 2.5rem;
+        border-radius: 20px;
         text-align: center;
         margin-top: 3rem;
+        box-shadow: 0 10px 40px rgba(0,168,132,0.3);
+        position: relative;
+        overflow: hidden;
     }
+
+    .faq-cta::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: gradientFlow 10s ease infinite;
+    }
+
     .faq-cta h3 {
-        font-size: 1.8rem;
+        font-size: 2rem;
         margin-bottom: 1rem;
         color: white;
+        font-weight: 800;
+        position: relative;
+        z-index: 1;
     }
+
+    .faq-cta p {
+        position: relative;
+        z-index: 1;
+    }
+
     .faq-cta-button {
         display: inline-block;
         background: white;
-        color: var(--guarani-primary);
-        padding: 1rem 2rem;
-        border-radius: 8px;
+        color: #00695c;
+        padding: 1.1rem 2.5rem;
+        border-radius: 12px;
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
         margin: 0.5rem;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 1;
+        font-size: 1.05rem;
     }
+
     .faq-cta-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        background: #f0fdf4;
+    }
+
+    @media (max-width: 768px) {
+        .faq-hero h1 {
+            font-size: 2rem;
+        }
+
+        .faq-answer {
+            padding-left: 0;
+        }
+
+        .faq-item {
+            padding: 1.5rem;
+        }
+
+        .faq-question::before {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.5rem;
+        }
     }
 </style>
 
@@ -173,7 +342,8 @@
             👑 Todas las funciones premium sin pagar un peso<br>
             🏆 Tu nombre en los créditos si hacés contribuciones importantes<br>
             💬 Línea directa con los desarrolladores para que te escuchen<br>
-            🎯 Probás nuevas funciones antes que nadie
+            🎯 Probás nuevas funciones antes que nadie<br>
+            <strong>💎 BONUS: Prioridad de entrada al accionariado cuando nos convirtamos en DAO</strong>
         </p>
     </div>
 
@@ -410,7 +580,100 @@
         </div>
     </div>
 
-    <!-- SECCIÓN 6: PROBLEMAS -->
+    <!-- SECCIÓN 6: DAO Y FUTURO -->
+    <div class="faq-section">
+        <h2>🌟 DAO & Accionariado - Tu Futuro en Guarani</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">¿Qué es esto de convertirse en DAO?</div>
+            <div class="faq-answer">
+                <strong>DAO</strong> significa <strong>Decentralized Autonomous Organization</strong> (Organización Autónoma Descentralizada).
+                <br><br>
+                Estamos <strong>sopesando convertirnos en DAO</strong>, lo que significaría que Guarani App Store sería dirigida por su comunidad
+                a través de votaciones y gobernanza compartida. No habría un "jefe" tradicional, sino que <strong>las decisiones importantes las tomarían
+                los miembros mediante votación</strong>.
+                <br><br>
+                Esto es parte de nuestra visión de construir algo <span class="guarani-word">oñondivegua</span> (colaborativo), donde cada voz cuenta.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">¿Qué beneficios tendría entrar como accionista/miembro de la DAO?</div>
+            <div class="faq-answer">
+                Si nos convertimos en DAO, los miembros tendrían:
+                <ul>
+                    <li><strong>🗳️ Tokens de Gobernanza:</strong> Tu voto contaría en decisiones estratégicas del negocio (nuevas apps, inversiones, dirección general, etc.)</li>
+                    <li><strong>💰 Participación en Ganancias:</strong> Como accionista, recibirías dividendos según los beneficios de la empresa</li>
+                    <li><strong>📈 Crecimiento del Valor:</strong> Si la empresa crece, tu participación vale más con el tiempo</li>
+                    <li><strong>🚀 Acceso VIP Permanente:</strong> Prioridad en todos los productos y servicios futuros</li>
+                    <li><strong>🤝 Networking Premium:</strong> Sos parte de una comunidad de innovadores y emprendedores tech</li>
+                    <li><strong>💡 Poder de Propuesta:</strong> Podés proponer nuevos productos, features, o direcciones estratégicas</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">¿Cómo entro al accionariado cuando se conviertan en DAO?</div>
+            <div class="faq-answer">
+                Aquí viene lo bueno: <strong>Los Beta Testers tendrán prioridad de entrada</strong>. 💎
+                <br><br>
+                Cuando llegue el momento de hacer la transición a DAO, los beta testers activos recibirán:
+                <ul>
+                    <li>🎫 <strong>Acceso prioritario:</strong> Podrán adquirir tokens/acciones antes que el público general</li>
+                    <li>💎 <strong>Precio preferencial:</strong> Descuentos o condiciones especiales de entrada</li>
+                    <li>🎁 <strong>Tokens iniciales bonus:</strong> Dependiendo de tu nivel y contribuciones, podrías recibir tokens gratuitos como reconocimiento</li>
+                </ul>
+                <br>
+                <strong>Por eso ahora es el mejor momento para unirte como Beta Tester.</strong> No solo disfrutás de acceso gratis a todas las apps,
+                sino que te estás asegurando un lugar preferencial en el futuro accionariado.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">¿Cuándo se van a convertir en DAO?</div>
+            <div class="faq-answer">
+                Todavía no hay una fecha definida. Estamos <strong>evaluando cuidadosamente</strong> esta posibilidad.
+                <br><br>
+                Antes de hacerlo, queremos:
+                <ul>
+                    <li>Crecer nuestra base de usuarios y beta testers</li>
+                    <li>Consolidar nuestras aplicaciones actuales</li>
+                    <li>Estudiar el marco legal y regulatorio en Paraguay</li>
+                    <li>Diseñar un modelo de gobernanza justo y sostenible</li>
+                </ul>
+                <br>
+                Los beta testers serán los <strong>primeros en enterarse</strong> cuando tengamos novedades.
+                Si estás registrado y activo, te notificaremos por email y Telegram.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">¿Qué diferencia hay entre tokens de gobernanza y acciones tradicionales?</div>
+            <div class="faq-answer">
+                <strong>Tokens de Gobernanza (DAO):</strong>
+                <ul>
+                    <li>Digital, basados en blockchain</li>
+                    <li>Transferibles de forma inmediata y global</li>
+                    <li>Votación directa en propuestas (sin intermediarios)</li>
+                    <li>Transparencia total (todo registrado en blockchain)</li>
+                    <li>Más flexibles para crear modelos de distribución creativos</li>
+                </ul>
+                <br>
+                <strong>Acciones Tradicionales:</strong>
+                <ul>
+                    <li>Reguladas por ley de sociedades anónimas</li>
+                    <li>Votación a través de juntas de accionistas</li>
+                    <li>Transferencias más burocráticas</li>
+                    <li>Marco legal más establecido en Paraguay</li>
+                </ul>
+                <br>
+                Todavía estamos evaluando cuál sería el mejor modelo para nuestra comunidad. Podríamos usar un híbrido o uno puro.
+                <strong>Lo que sí es seguro: los beta testers tendrán ventaja en cualquier escenario.</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 7: PROBLEMAS -->
     <div class="faq-section">
         <h2>⚠️ Ñemyatyrõ - Solución de Problemas</h2>
 

@@ -85,6 +85,14 @@ if (isset($update['message'])) {
                 handleHelp($chat_id);
                 break;
 
+            case '/dao':
+                handleDAO($chat_id);
+                break;
+
+            case '/join':
+                handleJoin($chat_id);
+                break;
+
             default:
                 sendMessage($chat_id, "Comando no reconocido. Usa /help para ver los comandos disponibles.");
         }
@@ -151,6 +159,11 @@ function handleStart($chat_id, $telegram_id, $telegram_username, $first_name, $l
     $message .= "📊 Ver tus estadísticas\n";
     $message .= "🏆 Competir en el leaderboard\n";
     $message .= "🚀 Recibir notificaciones de nuevas apps\n\n";
+    $message .= "━━━━━━━━━━━━━━━━\n\n";
+    $message .= "🌟 *IMPORTANTE:*\n";
+    $message .= "Estamos considerando convertirnos en *DAO*. Los Beta Testers tendrán *prioridad de entrada al accionariado* con tokens de gobernanza.\n\n";
+    $message .= "¿Qué es una DAO? Usa /dao para aprender más.\n\n";
+    $message .= "━━━━━━━━━━━━━━━━\n\n";
     $message .= "Para completar tu registro, visita:\n";
     $message .= SITE_URL . "/beta/join\n\n";
     $message .= "Después de registrarte, vuelve aquí y usa /start para vincular tu cuenta.";
@@ -375,17 +388,81 @@ function handleLeaderboard($chat_id) {
 function handleHelp($chat_id) {
     $message = "🤖 *Comandos Disponibles*\n\n";
     $message .= "/start - Registrarte o ver tu perfil\n";
+    $message .= "/join - Unirte al Programa Beta\n";
     $message .= "/apps - Ver apps disponibles\n";
     $message .= "/bug - Reportar un bug\n";
     $message .= "/feature - Sugerir una feature\n";
     $message .= "/stats - Ver tus estadísticas\n";
     $message .= "/leaderboard - Ver ranking de testers\n";
+    $message .= "/dao - ¿Qué es una DAO?\n";
     $message .= "/help - Ver esta ayuda\n\n";
     $message .= "━━━━━━━━━━━━━━━━\n\n";
+    $message .= "🌟 *Estamos considerando convertirnos en DAO*\n";
+    $message .= "Los Beta Testers tendrán *prioridad de entrada al accionariado*\n\n";
     $message .= "💬 *Comunidad:*\n";
     $message .= "• Discord: [Próximamente]\n";
     $message .= "• Web: " . SITE_URL . "\n\n";
     $message .= "¿Preguntas? Contacta: " . SITE_EMAIL;
+
+    sendMessage($chat_id, $message, 'Markdown');
+}
+
+/**
+ * Comando /dao - Explicar qué es una DAO
+ */
+function handleDAO($chat_id) {
+    $message = "🌟 *¿Qué es una DAO?*\n\n";
+    $message .= "*DAO* significa *Decentralized Autonomous Organization* (Organización Autónoma Descentralizada).\n\n";
+    $message .= "━━━━━━━━━━━━━━━━\n\n";
+    $message .= "🎯 *Características principales:*\n\n";
+    $message .= "• *Sin jefes tradicionales:* Las decisiones se toman mediante votación de los miembros\n";
+    $message .= "• *Reglas en código:* Todo está automatizado en smart contracts\n";
+    $message .= "• *Transparente:* Todas las decisiones y transacciones son públicas\n";
+    $message .= "• *Democrático:* Tu voto cuenta según tu participación\n\n";
+    $message .= "━━━━━━━━━━━━━━━━\n\n";
+    $message .= "🎁 *Para Guarani App Store:*\n\n";
+    $message .= "Estamos *considerando convertirnos en DAO* para que nuestra comunidad participe activamente en las decisiones del negocio.\n\n";
+    $message .= "Los miembros de la DAO podrían:\n";
+    $message .= "• 🗳️ Votar en decisiones estratégicas\n";
+    $message .= "• 💰 Recibir dividendos según participación\n";
+    $message .= "• 🚀 Proponer nuevos productos\n";
+    $message .= "• 📈 Beneficiarse del crecimiento de la empresa\n\n";
+    $message .= "━━━━━━━━━━━━━━━━\n\n";
+    $message .= "💎 *¿Cómo entrar?*\n\n";
+    $message .= "Los *Beta Testers tendrán prioridad* cuando hagamos la transición a DAO.\n\n";
+    $message .= "Si aún no eres Beta Tester, usa /join para unirte ahora y asegurar tu lugar.";
+
+    sendMessage($chat_id, $message, 'Markdown');
+}
+
+/**
+ * Comando /join - Invitar a unirse al programa beta
+ */
+function handleJoin($chat_id) {
+    $message = "🚀 *Únete al Programa Beta Tester*\n\n";
+    $message .= "¿Por qué ser Beta Tester?\n\n";
+    $message .= "✅ Acceso *GRATIS de por vida* a todas las apps\n";
+    $message .= "✅ Todas las funciones premium sin pagar\n";
+    $message .= "✅ Tu nombre en los créditos\n";
+    $message .= "✅ Voz directa con los desarrolladores\n";
+    $message .= "✅ Probás nuevas features antes que nadie\n\n";
+    $message .= "━━━━━━━━━━━━━━━━\n\n";
+    $message .= "💎 *BONUS ESPECIAL:*\n\n";
+    $message .= "Estamos sopesando convertirnos en *DAO* (Organización Autónoma Descentralizada).\n\n";
+    $message .= "Cuando eso pase, los *Beta Testers tendrán prioridad de entrada al accionariado* con tokens de gobernanza.\n\n";
+    $message .= "Esto significa:\n";
+    $message .= "• 🗳️ Voto en decisiones del negocio\n";
+    $message .= "• 💵 Participación en ganancias\n";
+    $message .= "• 📈 Crecimiento del valor de tu participación\n\n";
+    $message .= "━━━━━━━━━━━━━━━━\n\n";
+    $message .= "📝 *Cómo registrarte:*\n\n";
+    $message .= "1️⃣ Visita: " . SITE_URL . "/beta/join\n";
+    $message .= "2️⃣ Completa el formulario\n";
+    $message .= "3️⃣ Recibís tu token de acceso por email\n";
+    $message .= "4️⃣ Te activamos en 24-48 horas\n";
+    $message .= "5️⃣ ¡Listo! Ya podés empezar a testear\n\n";
+    $message .= "Usa /dao para aprender más sobre DAOs y tokens de gobernanza.\n\n";
+    $message .= "¿Preguntas? Visita: " . SITE_URL . "/faq";
 
     sendMessage($chat_id, $message, 'Markdown');
 }

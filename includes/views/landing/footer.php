@@ -113,21 +113,59 @@
         </div>
     </footer>
 
-    <!-- WhatsApp Float Button -->
-    <?php
-    $whatsapp = get_setting('contact_whatsapp', '');
-    if (!empty($whatsapp)):
-    ?>
-    <a href="https://api.whatsapp.com/send?phone=<?php echo e($whatsapp); ?>&text=¡Hola!%20Quiero%20más%20información"
-       class="whatsapp-float"
-       target="_blank"
-       rel="noopener noreferrer"
-       title="Contactar por WhatsApp">
-        <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-    </a>
-    <?php endif; ?>
+    <!-- Guarani Assistant Widget -->
+    <div id="guarani-widget" class="guarani-widget">
+        <!-- Floating Button -->
+        <button id="widget-toggle" class="widget-toggle" aria-label="Abrir asistente">
+            <div class="widget-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                </svg>
+                <span class="pulse-ring"></span>
+            </div>
+            <span class="widget-close-icon">×</span>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="widget-window" class="widget-window">
+            <div class="widget-header">
+                <div class="widget-header-content">
+                    <div class="widget-avatar">
+                        <img src="<?php echo ASSETS_URL; ?>/images/logo.png" alt="Guarani">
+                    </div>
+                    <div class="widget-header-text">
+                        <h3>Guarani Assistant</h3>
+                        <p class="widget-status"><span class="status-dot"></span> En línea</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget-messages" id="widget-messages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <p>¡Che angirū! 👋 Soy tu asistente de Guarani App Store.</p>
+                    </div>
+                </div>
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <p>Estamos construyendo algo especial: una plataforma colaborativa para PYMEs. <strong>Y estamos considerando convertirnos en DAO</strong> (Organización Autónoma Descentralizada). 🌟</p>
+                    </div>
+                </div>
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <p><strong>¿Qué significa esto para vos?</strong><br>
+                        Si te unís como Beta Tester ahora, cuando nos convirtamos en DAO tendrás <strong>prioridad para entrar al accionariado</strong> 💎</p>
+                    </div>
+                </div>
+                <div class="widget-options">
+                    <button class="widget-option" data-action="dao">🤔 ¿Qué es una DAO?</button>
+                    <button class="widget-option" data-action="benefits">💰 ¿Qué beneficios tiene?</button>
+                    <button class="widget-option" data-action="join">🚀 Quiero ser Beta Tester</button>
+                    <button class="widget-option" data-action="telegram">💬 Hablar con el bot</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="<?php echo ASSETS_URL; ?>/js/main.js"></script>
@@ -150,6 +188,85 @@
                 toggle.classList.remove('active');
             }
         });
+
+        // Guarani Widget functionality
+        (function() {
+            const toggle = document.getElementById('widget-toggle');
+            const window = document.getElementById('widget-window');
+            const messagesContainer = document.getElementById('widget-messages');
+
+            // Toggle widget
+            toggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                window.classList.toggle('active');
+            });
+
+            // Widget responses
+            const responses = {
+                dao: {
+                    user: '🤔 ¿Qué es una DAO?',
+                    bot: '<p><strong>DAO</strong> significa <strong>Decentralized Autonomous Organization</strong> (Organización Autónoma Descentralizada).</p><p>Es una organización dirigida por <strong>reglas codificadas en smart contracts</strong>, donde las decisiones las toman los miembros mediante votación. No hay jefes ni directores tradicionales.</p><p>En nuestro caso, los <strong>miembros de la DAO tendrían voz y voto</strong> en decisiones importantes del negocio: nuevas features, inversiones, dirección estratégica, etc. 🗳️</p>'
+                },
+                benefits: {
+                    user: '💰 ¿Qué beneficios tiene?',
+                    bot: '<p><strong>Beneficios de entrar como propietario:</strong></p><p>🎯 <strong>Tokens de Gobernanza:</strong> Tu voto cuenta en decisiones importantes<br>💵 <strong>Participación en Ganancias:</strong> Como accionista, recibís dividendos según beneficios<br>📈 <strong>Crecimiento del valor:</strong> Si la empresa crece, tu participación vale más<br>🚀 <strong>Prioridad en nuevos productos:</strong> Acceso VIP permanente<br>🤝 <strong>Networking:</strong> Sos parte de una comunidad de innovadores</p><p><strong>Los Beta Testers tendrán prioridad</strong> cuando hagamos la transición a DAO. Es tu oportunidad de entrar temprano. 💎</p>'
+                },
+                join: {
+                    user: '🚀 Quiero ser Beta Tester',
+                    bot: '<p>¡Excelente decisión! 🎉</p><p>Registrate ahora y comenzá a disfrutar de:</p><p>✅ Acceso <strong>GRATIS de por vida</strong> a todas las apps<br>✅ Todas las funciones premium<br>✅ Tu nombre en los créditos<br>✅ <strong>Prioridad para entrar al accionariado cuando seamos DAO</strong></p><p><a href="<?php echo get_url("beta/join"); ?>" style="display: inline-block; background: #00a884; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 0.5rem;">📝 Registrarme Ahora</a></p>'
+                },
+                telegram: {
+                    user: '💬 Hablar con el bot',
+                    bot: '<p>¡Perfecto! Nuestro bot de Telegram <strong>@guaraniappstore_bot</strong> puede ayudarte con:</p><p>✅ Registrarte como Beta Tester<br>✅ Reportar bugs<br>✅ Sugerir mejoras<br>✅ Ver tus estadísticas<br>✅ Explicarte sobre DAOs y gobernanza</p><p><a href="https://t.me/guaraniappstore_bot" target="_blank" style="display: inline-block; background: #0088cc; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; margin-top: 0.5rem;">💬 Abrir en Telegram</a></p>'
+                }
+            };
+
+            // Handle option clicks
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('widget-option') || e.target.closest('.widget-option')) {
+                    const button = e.target.classList.contains('widget-option') ? e.target : e.target.closest('.widget-option');
+                    const action = button.getAttribute('data-action');
+
+                    if (responses[action]) {
+                        // Add user message
+                        const userMsg = document.createElement('div');
+                        userMsg.className = 'message user-message';
+                        userMsg.innerHTML = '<div class="message-content"><p>' + responses[action].user + '</p></div>';
+                        messagesContainer.appendChild(userMsg);
+
+                        // Remove options
+                        const optionsDiv = messagesContainer.querySelector('.widget-options');
+                        if (optionsDiv) optionsDiv.remove();
+
+                        // Add bot response after delay
+                        setTimeout(function() {
+                            const botMsg = document.createElement('div');
+                            botMsg.className = 'message bot-message';
+                            botMsg.innerHTML = '<div class="message-content">' + responses[action].bot + '</div>';
+                            messagesContainer.appendChild(botMsg);
+
+                            // Scroll to bottom
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                            // Add back to start button
+                            setTimeout(function() {
+                                const backButton = document.createElement('button');
+                                backButton.className = 'widget-option';
+                                backButton.innerHTML = '↩️ Volver al inicio';
+                                backButton.onclick = function() {
+                                    location.reload();
+                                };
+                                messagesContainer.appendChild(backButton);
+                                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                            }, 500);
+                        }, 800);
+
+                        // Scroll to bottom
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }
+                }
+            });
+        })();
     </script>
 </body>
 </html>

@@ -448,40 +448,308 @@
 }
 
 /* ================================================
-   WHATSAPP FLOAT BUTTON
+   GUARANI ASSISTANT WIDGET
    ================================================ */
-.whatsapp-float {
+.guarani-widget {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    width: 60px;
-    height: 60px;
-    background: #25D366;
+    z-index: 999;
+}
+
+/* Toggle Button */
+.widget-toggle {
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
+    background: linear-gradient(135deg, #00a884 0%, #008069 100%);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 168, 132, 0.4);
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.widget-toggle:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 168, 132, 0.5);
+}
+
+.widget-icon {
+    position: relative;
     color: white;
-    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
-    z-index: 999;
     transition: all 0.3s ease;
 }
 
-.whatsapp-float:hover {
-    transform: scale(1.1) translateY(-4px);
-    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.6);
+.widget-toggle.active .widget-icon {
+    opacity: 0;
+    transform: scale(0.5);
 }
 
+.widget-close-icon {
+    position: absolute;
+    font-size: 32px;
+    color: white;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.widget-toggle.active .widget-close-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Pulse Animation */
+.pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    border: 2px solid #00a884;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Chat Window */
+.widget-window {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 380px;
+    max-height: 600px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-window.active {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+/* Widget Header */
+.widget-header {
+    background: linear-gradient(135deg, #00a884 0%, #008069 100%);
+    padding: 1.25rem;
+    color: white;
+}
+
+.widget-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.widget-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 4px;
+}
+
+.widget-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.widget-header-text h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.widget-status {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.85rem;
+    opacity: 0.95;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    display: inline-block;
+    animation: breathe 2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Messages Area */
+.widget-messages {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.message {
+    display: flex;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bot-message .message-content {
+    background: #f3f4f6;
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    max-width: 85%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.bot-message .message-content p {
+    margin: 0;
+    line-height: 1.5;
+    color: #1f2937;
+    font-size: 0.95rem;
+}
+
+.bot-message .message-content strong {
+    color: #00a884;
+}
+
+/* Widget Options */
+.widget-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.widget-option {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.widget-option:hover {
+    background: #f9fafb;
+    border-color: #00a884;
+    color: #00a884;
+    transform: translateX(4px);
+}
+
+.widget-option:active {
+    transform: translateX(4px) scale(0.98);
+}
+
+/* Response Messages */
+.user-message {
+    justify-content: flex-end;
+}
+
+.user-message .message-content {
+    background: #00a884;
+    color: white;
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    border-bottom-right-radius: 4px;
+    max-width: 85%;
+}
+
+.user-message .message-content p {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .whatsapp-float {
+    .guarani-widget {
         bottom: 1rem;
         right: 1rem;
-        width: 50px;
-        height: 50px;
     }
 
-    .whatsapp-float svg {
+    .widget-toggle {
+        width: 56px;
+        height: 56px;
+    }
+
+    .widget-icon svg {
         width: 24px;
         height: 24px;
+    }
+
+    .widget-window {
+        width: calc(100vw - 2rem);
+        max-width: 100%;
+        right: 0;
+        bottom: 75px;
+    }
+
+    .pulse-ring {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+@media (max-width: 480px) {
+    .widget-window {
+        max-height: 500px;
+    }
+
+    .widget-messages {
+        max-height: 350px;
     }
 }
