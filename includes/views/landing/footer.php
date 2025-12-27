@@ -195,6 +195,41 @@
             const window = document.getElementById('widget-window');
             const messagesContainer = document.getElementById('widget-messages');
 
+            // Generate or get session ID
+            function getSessionId() {
+                let sessionId = sessionStorage.getItem('widget_session_id');
+                if (!sessionId) {
+                    sessionId = 'web_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    sessionStorage.setItem('widget_session_id', sessionId);
+                }
+                return sessionId;
+            }
+
+            // Send conversation data to API
+            function trackConversation(action, userMessage, botResponse) {
+                const sessionId = getSessionId();
+
+                fetch('<?php echo get_url("api/widget_conversation"); ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        action: action,
+                        user_message: userMessage,
+                        bot_response: botResponse.replace(/<[^>]*>/g, '') // Strip HTML tags
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Conversation tracked:', data);
+                })
+                .catch(error => {
+                    console.error('Error tracking conversation:', error);
+                });
+            }
+
             // Toggle widget
             toggle.addEventListener('click', function() {
                 this.classList.toggle('active');
@@ -237,6 +272,9 @@
                         // Remove options
                         const optionsDiv = messagesContainer.querySelector('.widget-options');
                         if (optionsDiv) optionsDiv.remove();
+
+                        // Track conversation
+                        trackConversation(action, responses[action].user, responses[action].bot);
 
                         // Add bot response after delay
                         setTimeout(function() {

@@ -57,13 +57,69 @@ class LeadManager {
     }
 
     /**
+     * Crear o actualizar lead (versión flexible para web y telegram)
+     */
+    public function saveOrUpdateLead($data) {
+        $telegram_id = $data['telegram_id'] ?? null;
+        $web_session_id = $data['web_session_id'] ?? null;
+
+        // Verificar si ya existe
+        $existing = null;
+        if ($telegram_id) {
+            $existing = $this->db->fetchOne("SELECT id FROM leads WHERE telegram_id = ?", [$telegram_id]);
+        } elseif ($web_session_id) {
+            $existing = $this->db->fetchOne("SELECT id FROM leads WHERE web_session_id = ?", [$web_session_id]);
+        }
+
+        if ($existing) {
+            // Actualizar
+            $update_fields = [];
+            $params = [];
+
+            foreach ($data as $key => $value) {
+                if ($key !== 'telegram_id' && $key !== 'web_session_id' && $key !== 'id' && $value !== null) {
+                    $update_fields[] = "`$key` = ?";
+                    $params[] = is_array($value) ? json_encode($value) : $value;
+                }
+            }
+
+            if (empty($update_fields)) {
+                return $existing['id'];
+            }
+
+            $params[] = $existing['id'];
+            $sql = "UPDATE leads SET " . implode(', ', $update_fields) . ", last_interaction = NOW() WHERE id = ?";
+            $this->db->query($sql, $params);
+
+            return $existing['id'];
+        } else {
+            // Crear nuevo
+            $fields = [];
+            $values = [];
+            foreach ($data as $key => $value) {
+                if ($value !== null) {
+                    $fields[] = $key;
+                    $values[] = is_array($value) ? json_encode($value) : $value;
+                }
+            }
+
+            $placeholders = array_fill(0, count($fields), '?');
+            $sql = "INSERT INTO leads (" . implode(',', $fields) . ") VALUES (" . implode(',', $placeholders) . ")";
+            $this->db->query($sql, $values);
+
+            return $this->db->lastInsertId();
+        }
+    }
+
+    /**
      * Guardar mensaje de conversación
      */
-    public function saveMessage($lead_id, $telegram_id, $role, $message, $intent = null, $platform = 'telegram') {
+    public function saveMessage($lead_id, $role, $message, $identifier = null, $intent = null, $platform = 'telegram') {
+        // $identifier puede ser telegram_id o web_session_id
         $this->db->query("
             INSERT INTO conversations (lead_id, telegram_id, role, message, intent, platform, created_at)
             VALUES (?, ?, ?, ?, ?, ?, NOW())
-        ", [$lead_id, $telegram_id, $role, $message, $intent, $platform]);
+        ", [$lead_id, $identifier, $role, $message, $intent, $platform]);
 
         // Actualizar última interacción del lead
         $this->db->query("UPDATE leads SET last_interaction = NOW() WHERE id = ?", [$lead_id]);
@@ -151,6 +207,11 @@ class LeadManager {
         // Descripción del proyecto (+15)
         if (!empty($lead['project_description'])) $score += 15;
 
+        // Interés específico en DAO/accionariado (+20 para web widget)
+        if (in_array($lead['interest'], ['dao_governance', 'become_shareholder'])) {
+            $score += 20;
+        }
+
         // Presupuesto definido
         $budget_scores = [
             'enterprise' => 30,
@@ -172,9 +233,30 @@ class LeadManager {
         // Número de interacciones
         $interactions = $this->db->fetchOne("SELECT COUNT(*) as count FROM conversations WHERE lead_id = ?", [$lead_id]);
         if ($interactions['count'] > 5) $score += 10;
+        elseif ($interactions['count'] >= 3) $score += 5;
+
+        // Fuente web (+5 por engagement activo)
+        if ($lead['source'] === 'web_widget') $score += 5;
 
         // Actualizar score en la BD
         $this->db->query("UPDATE leads SET score = ? WHERE id = ?", [$score, $lead_id]);
+
+        return $score;
+    }
+
+    /**
+     * Calcular y actualizar score, enviando notificación si supera el umbral
+     */
+    public function calculateAndUpdateLeadScore($lead_id) {
+        $score = $this->calculateLeadScore($lead_id);
+
+        // Notificar al admin si el score es alto y aún no fue notificado
+        if ($score >= 40) {
+            $lead = $this->db->fetchOne("SELECT admin_notified FROM leads WHERE id = ?", [$lead_id]);
+            if ($lead && !$lead['admin_notified']) {
+                $this->notifyAdmin($lead_id);
+            }
+        }
 
         return $score;
     }
@@ -217,22 +299,35 @@ class LeadManager {
      */
     private function buildNotificationMessage($lead, $score) {
         $emoji_priority = $score >= 70 ? '🔥🔥🔥' : ($score >= 50 ? '🔥' : '💼');
+        $source_emoji = ($lead['source'] === 'web_widget') ? '🌐' : '📱';
 
-        $message = "$emoji_priority *NUEVO LEAD - Score: $score/100*\n\n";
+        $message = "$emoji_priority *NUEVO LEAD - Score: $score/100*\n";
+        $message .= "$source_emoji *Fuente:* " . $this->translateEnum($lead['source']) . "\n\n";
+
         $message .= "👤 *Contacto:*\n";
         $message .= "Nombre: " . ($lead['name'] ?? 'No proporcionado') . "\n";
         $message .= "Email: " . ($lead['email'] ?? 'No proporcionado') . "\n";
         $message .= "Teléfono: " . ($lead['phone'] ?? 'No proporcionado') . "\n";
-        $message .= "Empresa: " . ($lead['company'] ?? 'No proporcionado') . "\n\n";
+        if (!empty($lead['company'])) {
+            $message .= "Empresa: " . $lead['company'] . "\n";
+        }
+        $message .= "\n";
 
         $message .= "📋 *Detalles:*\n";
-        $message .= "Tipo: " . $this->translateEnum($lead['lead_type']) . "\n";
+        if (!empty($lead['lead_type'])) {
+            $message .= "Tipo: " . $this->translateEnum($lead['lead_type']) . "\n";
+        }
         $message .= "Interés: " . $this->translateEnum($lead['interest']) . "\n";
-        $message .= "Presupuesto: " . $this->translateEnum($lead['budget_range']) . "\n";
-        $message .= "Timeline: " . $this->translateEnum($lead['timeline']) . "\n\n";
+        if (!empty($lead['budget_range'])) {
+            $message .= "Presupuesto: " . $this->translateEnum($lead['budget_range']) . "\n";
+        }
+        if (!empty($lead['timeline'])) {
+            $message .= "Timeline: " . $this->translateEnum($lead['timeline']) . "\n";
+        }
+        $message .= "\n";
 
         if (!empty($lead['project_description'])) {
-            $message .= "💡 *Proyecto:*\n" . substr($lead['project_description'], 0, 200) . "\n\n";
+            $message .= "💡 *Proyecto/Interés:*\n" . substr($lead['project_description'], 0, 200) . "\n\n";
         }
 
         $message .= "🔗 *Dashboard:* " . SITE_URL . "/admin/leads/view?id=" . $lead['id'] . "\n";
@@ -254,6 +349,12 @@ class LeadManager {
             'consulting' => 'Consultoría',
             'partnership' => 'Partnership',
             'beta_testing' => 'Beta Testing',
+            'dao_governance' => 'Interesado en DAO/Gobernanza',
+            'become_shareholder' => 'Quiere ser accionista',
+            'general_inquiry' => 'Consulta general',
+            'contact' => 'Solicitud de contacto',
+            'web_widget' => 'Widget Web',
+            'telegram' => 'Telegram',
             'bajo' => '< $5,000',
             'medio' => '$5,000 - $15,000',
             'alto' => '$15,000 - $30,000',

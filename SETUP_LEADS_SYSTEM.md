@@ -40,7 +40,26 @@ mv public_html/telegram_bot_intelligent.php public_html/telegram_bot.php
 # El webhook ya debería estar configurado
 ```
 
-### 3. Configurar tu Telegram ID para notificaciones
+### 3. Agregar la ruta del API al config.php
+
+**IMPORTANTE:** Agrega la siguiente línea al array `$APP_ROUTES` en tu archivo `public_html/config.php`:
+
+```php
+'api/widget_conversation' => 'api_widget_conversation',
+```
+
+Debería quedar así:
+```php
+$APP_ROUTES = [
+    // ... otras rutas ...
+    'api/blog/view' => 'api_blog_view',
+    'api/widget_conversation' => 'api_widget_conversation',  // ← AGREGAR ESTA LÍNEA
+];
+```
+
+**Nota:** Si estás usando `config.example.php`, esta línea ya está incluida. Solo copiá el archivo a `config.php` si es primera instalación.
+
+### 4. Configurar tu Telegram ID para notificaciones
 
 Necesitás obtener tu Telegram ID para recibir notificaciones de leads:
 
@@ -172,14 +191,37 @@ Estamos preparando un dashboard completo donde podrás:
 
 ---
 
-## 🎯 Widget Web (Próximo Paso)
+## 🎯 Widget Web ✅ IMPLEMENTADO
 
-El widget flotante en la web también será conversacional:
+El widget flotante en la web ahora guarda conversaciones y notifica:
 
-```javascript
-// Ya está implementado con conversación básica
-// Próximamente: guardar en BD y notificar
-```
+**Características implementadas:**
+- ✅ Tracking automático de interacciones
+- ✅ Sesiones persistentes en el navegador
+- ✅ Guardado de conversaciones en BD
+- ✅ Scoring automático basado en intereses
+- ✅ Notificaciones al admin cuando score >= 40
+- ✅ Detección de interés en DAO/accionariado (+20 puntos)
+
+**Cómo funciona:**
+1. Usuario abre el widget y hace clic en una opción (DAO, beneficios, join, etc.)
+2. El widget envía la conversación al endpoint `/api/widget_conversation`
+3. Se crea/actualiza el lead en la tabla `leads`
+4. Se guarda cada mensaje en la tabla `conversations`
+5. Se calcula el score automáticamente
+6. Si score >= 40 y no fue notificado antes, se envía notificación a Telegram del admin
+
+**Acciones trackeadas:**
+- `dao` → Interesado en DAO/Gobernanza (+20 pts + 15 pts descripción + 5 pts web)
+- `benefits` → Quiere ser accionista (+20 pts + 15 pts descripción + 5 pts web)
+- `join` → Registrarse como Beta Tester (+15 pts descripción + 5 pts web)
+- `telegram` → Contactar por Telegram (+15 pts descripción + 5 pts web)
+
+**Ejemplo de scoring:**
+- Usuario hace clic en "¿Qué es una DAO?" → **40 puntos** → ¡Notificación al admin!
+  - Interés DAO/Gobernanza: +20
+  - Descripción del proyecto: +15
+  - Fuente web widget: +5
 
 ---
 
@@ -280,12 +322,14 @@ SHOW TABLES LIKE 'conversations';
 ## 📈 Próximas Funciones
 
 - [ ] Panel de admin completo para leads
-- [ ] Widget web con persistencia en BD
+- [x] ~~Widget web con persistencia en BD~~ ✅ **COMPLETADO**
 - [ ] Integración con email (enviar propuestas)
 - [ ] CRM básico
 - [ ] Estadísticas y analytics
 - [ ] Exportar leads a CSV
 - [ ] Integraciones (Google Sheets, etc.)
+- [ ] Formulario de captura de email en el widget
+- [ ] Chat en vivo opcional desde el widget
 
 ---
 
