@@ -44,15 +44,33 @@ try {
     $phone = isset($data['phone']) ? sanitize($data['phone']) : null;
     $message = isset($data['message']) ? sanitize($data['message']) : null;
 
-    // Detectar interés basado en la acción
+    // Detectar interés basado en la acción o el mensaje
     $interest_mapping = [
         'dao' => 'dao_governance',
         'benefits' => 'become_shareholder',
         'join' => 'beta_tester',
         'telegram' => 'contact',
+        'free-chat' => 'general_inquiry',
+        'user-message' => 'general_inquiry',
     ];
 
     $interest = isset($interest_mapping[$action]) ? $interest_mapping[$action] : 'general_inquiry';
+
+    // Si es un mensaje del usuario, detectar intent basado en palabras clave
+    $user_message_content = isset($data['user_message']) ? strtolower($data['user_message']) : '';
+    if ($action === 'user-message' && $user_message_content) {
+        if (strpos($user_message_content, 'dao') !== false || strpos($user_message_content, 'gobernanza') !== false || strpos($user_message_content, 'descentraliz') !== false) {
+            $interest = 'dao_governance';
+        } elseif (strpos($user_message_content, 'accion') !== false || strpos($user_message_content, 'socio') !== false || strpos($user_message_content, 'invert') !== false) {
+            $interest = 'become_shareholder';
+        } elseif (strpos($user_message_content, 'registr') !== false || strpos($user_message_content, 'beta') !== false || strpos($user_message_content, 'unir') !== false) {
+            $interest = 'beta_tester';
+        } elseif (strpos($user_message_content, 'precio') !== false || strpos($user_message_content, 'costo') !== false || strpos($user_message_content, 'cuanto') !== false) {
+            $interest = 'pricing';
+        } elseif (strpos($user_message_content, 'contact') !== false || strpos($user_message_content, 'hablar') !== false || strpos($user_message_content, 'reunión') !== false) {
+            $interest = 'contact';
+        }
+    }
 
     // Construir descripción del proyecto basada en las interacciones
     $project_desc_mapping = [
@@ -60,9 +78,11 @@ try {
         'benefits' => 'Preguntó sobre los beneficios de convertirse en propietario/accionista de la DAO',
         'join' => 'Mostró interés en unirse al programa Beta Tester para acceso prioritario al accionariado',
         'telegram' => 'Quiso conectar con el bot de Telegram para más información',
+        'free-chat' => 'Activó el chat libre para hacer preguntas',
+        'user-message' => $user_message_content ? "Preguntó: " . substr($user_message_content, 0, 200) : 'Conversación por chat',
     ];
 
-    $project_description = isset($project_desc_mapping[$action]) ? $project_desc_mapping[$action] : $message;
+    $project_description = isset($project_desc_mapping[$action]) ? $project_desc_mapping[$action] : ($message ?: 'Conversación por widget web');
 
     // Preparar datos del lead
     $lead_data = [

@@ -753,3 +753,59 @@
         max-height: 350px;
     }
 }
+
+/* Widget Input Area */
+.widget-input-area {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+    background: white;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.widget-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.widget-input:focus {
+    border-color: #00a884;
+}
+
+.widget-send-btn {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #00a884, #008069);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.widget-send-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 168, 132, 0.3);
+}
+
+.widget-send-btn:active {
+    transform: scale(0.95);
+}
+
+.widget-send-btn svg {
+    width: 20px;
+    height: 20px;
+}

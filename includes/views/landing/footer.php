@@ -161,8 +161,23 @@
                     <button class="widget-option" data-action="dao">🤔 ¿Qué es una DAO?</button>
                     <button class="widget-option" data-action="benefits">💰 ¿Qué beneficios tiene?</button>
                     <button class="widget-option" data-action="join">🚀 Quiero ser Beta Tester</button>
-                    <button class="widget-option" data-action="telegram">💬 Hablar con el bot</button>
+                    <button class="widget-option" data-action="free-chat">💬 Escribir mi pregunta</button>
                 </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="widget-input-area" id="widget-input-area" style="display: none;">
+                <input type="text"
+                       id="widget-input"
+                       class="widget-input"
+                       placeholder="Escribí tu pregunta..."
+                       autocomplete="off">
+                <button id="widget-send-btn" class="widget-send-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -262,6 +277,27 @@
                     const button = e.target.classList.contains('widget-option') ? e.target : e.target.closest('.widget-option');
                     const action = button.getAttribute('data-action');
 
+                    // Si es free-chat, activar el input
+                    if (action === 'free-chat') {
+                        const optionsDiv = messagesContainer.querySelector('.widget-options');
+                        if (optionsDiv) optionsDiv.remove();
+
+                        // Mostrar mensaje del bot
+                        const botMsg = document.createElement('div');
+                        botMsg.className = 'message bot-message';
+                        botMsg.innerHTML = '<div class="message-content"><p>¡Perfecto! Escribí tu pregunta y te respondo al toque. 😊</p></div>';
+                        messagesContainer.appendChild(botMsg);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                        // Activar input
+                        document.getElementById('widget-input-area').style.display = 'flex';
+                        document.getElementById('widget-input').focus();
+
+                        // Track que activó el chat
+                        trackConversation('free-chat', 'Quiero escribir mi pregunta', 'Chat libre activado');
+                        return;
+                    }
+
                     if (responses[action]) {
                         // Add user message
                         const userMsg = document.createElement('div');
@@ -286,22 +322,91 @@
                             // Scroll to bottom
                             messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                            // Add back to start button
+                            // Activar input para seguir conversando
                             setTimeout(function() {
-                                const backButton = document.createElement('button');
-                                backButton.className = 'widget-option';
-                                backButton.innerHTML = '↩️ Volver al inicio';
-                                backButton.onclick = function() {
-                                    location.reload();
-                                };
-                                messagesContainer.appendChild(backButton);
-                                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                                document.getElementById('widget-input-area').style.display = 'flex';
+                                document.getElementById('widget-input').focus();
                             }, 500);
                         }, 800);
 
                         // Scroll to bottom
                         messagesContainer.scrollTop = messagesContainer.scrollHeight;
                     }
+                }
+            });
+
+            // Manejar envío de mensajes
+            const widgetInput = document.getElementById('widget-input');
+            const sendBtn = document.getElementById('widget-send-btn');
+
+            function sendMessage() {
+                const message = widgetInput.value.trim();
+                if (!message) return;
+
+                // Mostrar mensaje del usuario
+                const userMsg = document.createElement('div');
+                userMsg.className = 'message user-message';
+                userMsg.innerHTML = '<div class="message-content"><p>' + message + '</p></div>';
+                messagesContainer.appendChild(userMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Limpiar input
+                widgetInput.value = '';
+
+                // Generar respuesta del bot
+                const botResponse = generateBotResponse(message);
+
+                // Track conversation
+                trackConversation('user-message', message, botResponse);
+
+                // Mostrar respuesta del bot
+                setTimeout(function() {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'message bot-message';
+                    botMsg.innerHTML = '<div class="message-content">' + botResponse + '</div>';
+                    messagesContainer.appendChild(botMsg);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 600);
+            }
+
+            // Generar respuesta inteligente
+            function generateBotResponse(userMessage) {
+                const msg = userMessage.toLowerCase();
+
+                // Palabras clave para diferentes temas
+                if (msg.includes('dao') || msg.includes('descentraliz') || msg.includes('gobernanza')) {
+                    return '<p><strong>DAO (Organización Autónoma Descentralizada)</strong> es una organización dirigida por reglas codificadas en smart contracts, donde las decisiones las toman los miembros mediante votación.</p><p>En nuestro caso, los miembros tendrían <strong>tokens de gobernanza</strong> y podrían votar en decisiones importantes. 🗳️</p><p>¿Te interesa ser parte desde el inicio?</p>';
+                }
+
+                if (msg.includes('accion') || msg.includes('socio') || msg.includes('propietar') || msg.includes('invert')) {
+                    return '<p>Como <strong>accionista/miembro de la DAO</strong> tendrías:</p><p>✅ Voto en decisiones estratégicas<br>✅ Participación en ganancias<br>✅ Acceso VIP a productos<br>✅ Networking premium</p><p><strong>Los Beta Testers tienen prioridad</strong> para entrar al accionariado. ¿Querés registrarte?</p>';
+                }
+
+                if (msg.includes('precio') || msg.includes('costo') || msg.includes('cuanto') || msg.includes('pagar')) {
+                    return '<p>🎁 El programa <strong>Beta Tester es 100% GRATIS</strong>. Recibís:</p><p>✅ Acceso gratuito <strong>de por vida</strong> a todas las apps<br>✅ Todas las funciones premium sin costo<br>✅ Prioridad en el accionariado cuando seamos DAO</p><p>Solo necesitás ayudarnos probando apps y dando feedback. ¿Te sumás?</p>';
+                }
+
+                if (msg.includes('registr') || msg.includes('unir') || msg.includes('inscrib') || msg.includes('beta')) {
+                    return '<p>¡Genial! Para registrarte como Beta Tester:</p><p>1️⃣ Entrá a: <a href="<?php echo get_url("beta/join"); ?>" style="color: #00a884; font-weight: 600;">Registrarme como Beta Tester</a></p><p>2️⃣ Completá el formulario<br>3️⃣ Recibís tu token de acceso por email<br>4️⃣ ¡Ya podés empezar a testear apps!</p><p>¿Necesitás ayuda con algo más?</p>';
+                }
+
+                if (msg.includes('app') || msg.includes('aplicacion') || msg.includes('software') || msg.includes('saas')) {
+                    return '<p>Tenemos varias <strong>aplicaciones web</strong> en desarrollo para PYMEs:</p><p>📊 Gestión de inventarios<br>📈 Analytics y reportes<br>💼 CRM para ventas<br>🤖 Automatizaciones con IA</p><p>Como Beta Tester podés probarlas gratis y dar tu opinión. <a href="<?php echo get_url("webapps"); ?>" style="color: #00a884; font-weight: 600;">Ver aplicaciones</a></p>';
+                }
+
+                if (msg.includes('contact') || msg.includes('hablar') || msg.includes('reun') || msg.includes('llamar')) {
+                    return '<p>Podés contactarnos por:</p><p>📧 Email: <strong><?php echo SITE_EMAIL; ?></strong><br>💬 Telegram: <a href="https://t.me/guaraniappstore_bot" target="_blank" style="color: #00a884; font-weight: 600;">@guaraniappstore_bot</a></p><p>O dejame tu email y te contactamos nosotros:</p>';
+                }
+
+                // Respuesta genérica
+                return '<p>Interesante pregunta. Te puedo ayudar con:</p><p>🏢 Información sobre la DAO y accionariado<br>🎯 Programa Beta Tester (gratis de por vida)<br>💻 Nuestras aplicaciones web<br>📞 Ponerte en contacto con el equipo</p><p>¿Sobre qué querés saber más?</p>';
+            }
+
+            // Event listeners
+            sendBtn.addEventListener('click', sendMessage);
+            widgetInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
                 }
             });
         })();
