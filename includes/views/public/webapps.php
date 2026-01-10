@@ -152,7 +152,13 @@
                                 <span>👁 <?php echo format_number($webapp['view_count']); ?></span>
                             </div>
                             <div class="webapp-card-actions">
-                                <?php if (!empty($webapp['app_url'])): ?>
+                                <?php
+                                // Validar que app_url sea una URL válida (no vacía, no "/" solamente)
+                                $has_valid_url = !empty($webapp['app_url']) &&
+                                                trim($webapp['app_url']) !== '/' &&
+                                                filter_var($webapp['app_url'], FILTER_VALIDATE_URL);
+                                ?>
+                                <?php if ($has_valid_url): ?>
                                     <a href="<?php echo e($webapp['app_url']); ?>"
                                        target="_blank"
                                        rel="noopener noreferrer"

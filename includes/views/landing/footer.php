@@ -287,7 +287,11 @@
                         botMsg.className = 'message bot-message';
                         botMsg.innerHTML = '<div class="message-content"><p>¡Perfecto! Escribí tu pregunta y te respondo al toque. 😊</p></div>';
                         messagesContainer.appendChild(botMsg);
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                        // Scroll mejorado
+                        requestAnimationFrame(() => {
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        });
 
                         // Activar input
                         document.getElementById('widget-input-area').style.display = 'flex';
@@ -319,8 +323,13 @@
                             botMsg.innerHTML = '<div class="message-content">' + responses[action].bot + '</div>';
                             messagesContainer.appendChild(botMsg);
 
-                            // Scroll to bottom
-                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                            // Scroll mejorado to bottom
+                            requestAnimationFrame(() => {
+                                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                                requestAnimationFrame(() => {
+                                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                                });
+                            });
 
                             // Activar input para seguir conversando
                             setTimeout(function() {
@@ -328,9 +337,6 @@
                                 document.getElementById('widget-input').focus();
                             }, 500);
                         }, 800);
-
-                        // Scroll to bottom
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
                     }
                 }
             });
@@ -338,6 +344,18 @@
             // Manejar envío de mensajes
             const widgetInput = document.getElementById('widget-input');
             const sendBtn = document.getElementById('widget-send-btn');
+
+            // Función mejorada para scroll suave al final
+            function scrollToBottom() {
+                // Usar requestAnimationFrame para asegurar que el DOM se haya actualizado
+                requestAnimationFrame(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    // Double-check después de un frame más para contenido dinámico
+                    requestAnimationFrame(() => {
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    });
+                });
+            }
 
             function sendMessage() {
                 const message = widgetInput.value.trim();
@@ -348,7 +366,7 @@
                 userMsg.className = 'message user-message';
                 userMsg.innerHTML = '<div class="message-content"><p>' + message + '</p></div>';
                 messagesContainer.appendChild(userMsg);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                scrollToBottom();
 
                 // Limpiar input
                 widgetInput.value = '';
@@ -365,7 +383,8 @@
                     botMsg.className = 'message bot-message';
                     botMsg.innerHTML = '<div class="message-content">' + botResponse + '</div>';
                     messagesContainer.appendChild(botMsg);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    // Scroll mejorado después de agregar contenido
+                    scrollToBottom();
                 }, 600);
             }
 

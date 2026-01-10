@@ -22,17 +22,21 @@ if (!$webapp) {
     exit;
 }
 
-// Incrementar contador de vistas
-$db->query("UPDATE webapps SET view_count = view_count + 1 WHERE id = ?", [$webapp['id']]);
+// Incrementar contador de vistas (solo una vez por sesión para evitar inflación)
+$view_key = 'viewed_webapp_' . $webapp['id'];
+if (!isset($_SESSION[$view_key])) {
+    $db->query("UPDATE webapps SET view_count = view_count + 1 WHERE id = ?", [$webapp['id']]);
+    $_SESSION[$view_key] = time();
 
-// Registrar analítica
-$db->insert('webapp_analytics', [
-    'webapp_id' => $webapp['id'],
-    'event_type' => 'view',
-    'ip_address' => get_client_ip(),
-    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-    'referrer' => $_SERVER['HTTP_REFERER'] ?? ''
-]);
+    // Registrar analítica
+    $db->insert('webapp_analytics', [
+        'webapp_id' => $webapp['id'],
+        'event_type' => 'view',
+        'ip_address' => get_client_ip(),
+        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+        'referrer' => $_SERVER['HTTP_REFERER'] ?? ''
+    ]);
+}
 
 // Parsear tags y tech_stack
 $webapp['tags'] = json_decode($webapp['tags'] ?? '[]', true);
