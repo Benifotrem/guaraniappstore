@@ -143,6 +143,14 @@ function trackWebappClick(webappId) {
     width: 100px;
     height: 100px;
     object-fit: contain;
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    /* Asegurar que la imagen no exceda el contenedor */
+    max-width: 100px;
+    max-height: 100px;
+    display: block;
 }
 .webapp-detail-title {
     font-size: 2.5rem;
